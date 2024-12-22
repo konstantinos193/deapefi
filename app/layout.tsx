@@ -1,7 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { WalletProvider } from './contexts/WalletContext'
-import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
   title: 'DeApe.fi',
@@ -23,7 +22,6 @@ export default function RootLayout({
         <WalletProvider>
           {children}
         </WalletProvider>
-        <Analytics />
       </body>
     </html>
   )
