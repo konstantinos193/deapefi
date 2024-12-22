@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { WalletProvider } from './providers/WalletProvider'
+import { WalletProvider } from './contexts/WalletContext'
 
 export const metadata: Metadata = {
   title: 'DeApe.fi',
@@ -16,9 +16,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head />
-      <body className="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-gray-100 min-h-screen">
+    <html lang="en" className="dark">
+      <body className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-gray-100">
         <WalletProvider>
           {children}
         </WalletProvider>
