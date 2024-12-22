@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { WalletProvider } from './contexts/WalletContext'
+import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
   title: 'DeApe.fi',
@@ -15,12 +16,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  console.log('Layout rendering, styles should be applied')
   return (
     <html lang="en" className="dark">
       <body className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-gray-100">
         <WalletProvider>
           {children}
         </WalletProvider>
+        <Analytics />
       </body>
     </html>
   )
