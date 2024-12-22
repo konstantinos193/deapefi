@@ -13,7 +13,7 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg p-6 rounded-xl shadow-lg">
+    <div className="bg-gray-800/50 backdrop-blur-lg p-8 rounded-2xl shadow-2xl">
       <div className="flex justify-center mb-4">{icon}</div>
       <h3 className="text-xl font-semibold mb-2 text-white text-center">{title}</h3>
       <p className="text-gray-300 text-center">{description}</p>
@@ -24,17 +24,17 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 export default function LandingPage() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center"
+          className="mb-12"
         >
           <h1 className="text-5xl font-bold mb-6 text-white">
             Welcome to <span className="text-[#0154fa]">DeApe.fi</span>
           </h1>
-          <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-2xl">
             Maximize the value of your Ape NFTs through our cutting-edge staking platform. Earn rewards and unlock exclusive benefits in the DeApe.fi ecosystem.
           </p>
         </motion.div>
@@ -45,8 +45,11 @@ export default function LandingPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-16"
         >
-          <div className="flex justify-center mb-16">
-            <Link href="/staking" className="bg-[#0154fa] text-white px-8 py-4 rounded-md text-xl font-semibold hover:bg-[#0143d1] transition-colors inline-block">
+          <div className="flex justify-start">
+            <Link 
+              href="/staking" 
+              className="bg-[#0154fa] text-white px-8 py-4 rounded-xl text-xl font-semibold hover:bg-[#0143d1] transition-colors inline-block shadow-lg hover:shadow-xl"
+            >
               Start Staking Now
             </Link>
           </div>
@@ -57,7 +60,7 @@ export default function LandingPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <h2 className="text-3xl font-bold mb-8 text-white text-center">Why Stake Your Ape NFTs?</h2>
+          <h2 className="text-3xl font-bold mb-8 text-white">Why Stake Your Ape NFTs?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Gem className="w-12 h-12 text-[#0154fa]" />}
