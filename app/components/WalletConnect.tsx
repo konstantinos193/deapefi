@@ -3,9 +3,8 @@
 import { useWallet } from '../contexts/WalletContext'
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import type { Ethereum, WalletError } from '../types/global'
+import type { WalletError } from '../types/global'
 import { Check } from 'lucide-react'
-import Image from 'next/image'
 
 const APECHAIN_CONFIG = {
   chainId: '0x8173',
@@ -145,11 +144,10 @@ export default function WalletConnect() {
                 >
                   <div className="flex items-center">
                     <div className="w-8 h-8 relative mr-3">
-                      <Image 
+                      <img 
                         src="https://play-lh.googleusercontent.com/8rzHJpfkdFwA0Lo6_CHUjoNt8OU3EyIe9BZNKGqj0C8BhleguW9LhXHbS46FAtLAJ9r2"
                         alt="MetaMask"
-                        width={32}
-                        height={32}
+                        className="w-8 h-8"
                       />
                     </div>
                     <span className="text-white font-medium">{wallet.name}</span>
