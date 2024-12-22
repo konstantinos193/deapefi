@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Add this comment to verify CSS is loading */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100vh;
