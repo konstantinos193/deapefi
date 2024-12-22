@@ -24,17 +24,17 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 export default function LandingPage() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="flex-1 flex flex-col items-center justify-center container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="w-full max-w-4xl text-center"
         >
           <h1 className="text-5xl font-bold mb-6 text-white">
             Welcome to <span className="text-[#0154fa]">DeApe.fi</span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-12">
             Maximize the value of your Ape NFTs through our cutting-edge staking platform. Earn rewards and unlock exclusive benefits in the DeApe.fi ecosystem.
           </p>
         </motion.div>
@@ -43,7 +43,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-16 flex justify-center"
+          className="w-full max-w-4xl text-center mb-16"
         >
           <Link 
             href="/staking" 
