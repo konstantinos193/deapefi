@@ -4,7 +4,9 @@ const config: Config = {
     content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/layouts/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/staking/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   darkMode: ["class"],
   theme: {
