@@ -1,10 +1,10 @@
 'use client'
 
-import Link from 'next/link'
 import { PieChart, Gem, Trophy } from 'lucide-react'
 import { useWallet } from '../contexts/WalletContext'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function StakingPage() {
   const { isConnected } = useWallet()
@@ -64,6 +64,9 @@ export default function StakingPage() {
               Wallet connection required
             </div>
           )}
+          <Link href="/staking/dashboard" className="mt-4 text-sm text-blue-400">
+            Go to Dashboard
+          </Link>
         </CardWrapper>
 
         <CardWrapper path="/staking/manage">
