@@ -164,7 +164,8 @@ export default function LeaderBoard() {
               <tr 
                 key={entry.address}
                 className={`border-b border-gray-700 hover:bg-gray-800 
-                  ${entry.address.toLowerCase() === currentAddress ? 'bg-blue-900 bg-opacity-20' : ''}`}
+                  ${entry.address.toLowerCase() === currentAddress ? 'bg-blue-900 bg-opacity-20' : ''}
+                  ${getRankStyle(index)}`}
               >
                 <td className="py-4 px-4">
                   <div className="flex items-center">
