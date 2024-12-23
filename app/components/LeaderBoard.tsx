@@ -18,10 +18,8 @@ interface LeaderboardEntry {
   points: number;
 }
 
-interface WindowWithEthereum {
-  ethereum: {
-    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-  }
+declare global {
+  interface Window extends WindowWithEthereum {}
 }
 
 export default function LeaderBoard() {
