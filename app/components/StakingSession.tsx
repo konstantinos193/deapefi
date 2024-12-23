@@ -1,10 +1,10 @@
 'use client'
 
 import { useWallet } from '../contexts/WalletContext'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ArrowRightCircle, ArrowLeftCircle } from 'lucide-react'
+import { ArrowRightCircle, ArrowLeftCircle, Check, X } from 'lucide-react'
 import { ethers } from 'ethers'
 import { NFT_STAKING_ABI, NFT_COLLECTION_ABI } from '../utils/contractInterface'
 import { STAKING_CONTRACT_ADDRESS, NFT_CONTRACT_ADDRESS } from '../utils/constants'
@@ -22,6 +22,10 @@ interface NFTListProps {
   action: string
   onAction: (nft: NFT) => Promise<void>
   actionIcon: React.ReactNode
+  selected: Set<string>
+  onSelect: (id: string) => void
+  onBulkAction: () => Promise<void>
+  bulkActionText: string
 }
 
 interface NFTCardProps {
@@ -29,6 +33,8 @@ interface NFTCardProps {
   action: string
   onAction: (nft: NFT) => Promise<void>
   actionIcon: React.ReactNode
+  isSelected: boolean
+  onSelect: () => void
 }
 
 interface ErrorDetails {
@@ -46,6 +52,8 @@ export default function StakingSession() {
   const [unstakedNFTs, setUnstakedNFTs] = useState<NFT[]>([])
   const [stakedNFTs, setStakedNFTs] = useState<NFT[]>([])
   const [isApproved, setIsApproved] = useState(false)
+  const [selectedUnstaked, setSelectedUnstaked] = useState<Set<string>>(new Set())
+  const [selectedStaked, setSelectedStaked] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     let isMounted = true
@@ -229,6 +237,85 @@ export default function StakingSession() {
     }
   }
 
+  const handleSelectUnstaked = useCallback((nftId: string | Set<string>) => {
+    if (nftId instanceof Set) {
+      setSelectedUnstaked(nftId)
+    } else {
+      setSelectedUnstaked(prev => {
+        const newSelected = new Set(prev)
+        if (newSelected.has(nftId)) {
+          newSelected.delete(nftId)
+        } else {
+          newSelected.add(nftId)
+        }
+        return newSelected
+      })
+    }
+  }, [])
+
+  const handleSelectStaked = useCallback((nftId: string | Set<string>) => {
+    if (nftId instanceof Set) {
+      setSelectedStaked(nftId)
+    } else {
+      setSelectedStaked(prev => {
+        const newSelected = new Set(prev)
+        if (newSelected.has(nftId)) {
+          newSelected.delete(nftId)
+        } else {
+          newSelected.add(nftId)
+        }
+        return newSelected
+      })
+    }
+  }, [])
+
+  const handleStakeSelected = async () => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as Ethereum)
+      const signer = provider.getSigner()
+      const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, NFT_STAKING_ABI, signer)
+      
+      if (!isApproved) {
+        const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_COLLECTION_ABI, signer)
+        const approveTx = await nftContract.setApprovalForAll(STAKING_CONTRACT_ADDRESS, true)
+        await approveTx.wait()
+        setIsApproved(true)
+      }
+
+      const selectedIds = Array.from(selectedUnstaked)
+      const tx = await stakingContract.stakeNFTs(selectedIds)
+      await tx.wait()
+      
+      const selectedNFTs = unstakedNFTs.filter(nft => selectedUnstaked.has(nft.id))
+      setUnstakedNFTs(unstakedNFTs.filter(nft => !selectedUnstaked.has(nft.id)))
+      setStakedNFTs([...stakedNFTs, ...selectedNFTs])
+      setSelectedUnstaked(new Set()) // Clear selection
+    } catch (err) {
+      const error = err as ErrorDetails
+      handleError(error)
+    }
+  }
+
+  const handleUnstakeSelected = async () => {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum as Ethereum)
+      const signer = provider.getSigner()
+      const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, NFT_STAKING_ABI, signer)
+      
+      const selectedIds = Array.from(selectedStaked)
+      const tx = await stakingContract.unstakeNFTs(selectedIds)
+      await tx.wait()
+
+      const selectedNFTs = stakedNFTs.filter(nft => selectedStaked.has(nft.id))
+      setStakedNFTs(stakedNFTs.filter(nft => !selectedStaked.has(nft.id)))
+      setUnstakedNFTs([...unstakedNFTs, ...selectedNFTs])
+      setSelectedStaked(new Set()) // Clear selection
+    } catch (err) {
+      const error = err as ErrorDetails
+      handleError(error)
+    }
+  }
+
   if (!isConnected) {
     return (
       <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-2xl">
@@ -251,33 +338,100 @@ export default function StakingSession() {
   return (
     <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-2xl">
       <div className="flex flex-col lg:flex-row gap-8">
-        <NFTList
-          title="Available NFTs"
-          nfts={unstakedNFTs}
-          action="Stake"
-          onAction={handleStake}
-          actionIcon={<ArrowRightCircle className="w-5 h-5" />}
-        />
-        <NFTList
-          title="Staked NFTs"
-          nfts={stakedNFTs}
-          action="Unstake"
-          onAction={handleUnstake}
-          actionIcon={<ArrowLeftCircle className="w-5 h-5" />}
-        />
+        <div className="flex-1 bg-gray-900 bg-opacity-50 rounded-xl border border-gray-700">
+          <NFTList
+            title="Available NFTs"
+            nfts={unstakedNFTs}
+            action="Stake"
+            onAction={handleStake}
+            actionIcon={<ArrowRightCircle className="w-5 h-5" />}
+            selected={selectedUnstaked}
+            onSelect={handleSelectUnstaked}
+            onBulkAction={handleStakeSelected}
+            bulkActionText="Stake Selected"
+          />
+        </div>
+        <div className="flex-1 bg-gray-900 bg-opacity-50 rounded-xl border border-gray-700">
+          <NFTList
+            title="Staked NFTs"
+            nfts={stakedNFTs}
+            action="Unstake"
+            onAction={handleUnstake}
+            actionIcon={<ArrowLeftCircle className="w-5 h-5" />}
+            selected={selectedStaked}
+            onSelect={handleSelectStaked}
+            onBulkAction={handleUnstakeSelected}
+            bulkActionText="Unstake Selected"
+          />
+        </div>
       </div>
     </div>
   )
 }
 
-function NFTList({ title, nfts, action, onAction, actionIcon }: NFTListProps) {
+function NFTList({ 
+  title, 
+  nfts, 
+  action, 
+  onAction, 
+  actionIcon, 
+  selected, 
+  onSelect,
+  onBulkAction,
+  bulkActionText 
+}: NFTListProps) {
+  const handleSelectAll = useCallback(() => {
+    if (selected.size === nfts.length) {
+      onSelect(new Set())
+    } else {
+      const allIds = nfts.map(nft => nft.id)
+      onSelect(new Set(allIds))
+    }
+  }, [nfts, selected.size, onSelect])
+
   return (
-    <div className="flex-1">
-      <h3 className="text-2xl font-semibold mb-6 text-white">{title}</h3>
-      <div className="h-[500px] overflow-y-auto custom-scrollbar mb-8">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="flex-1 p-4">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-2xl font-semibold text-white">{title}</h3>
+        <div className="flex space-x-3">
+          {nfts.length > 0 && (
+            <>
+              <button
+                onClick={handleSelectAll}
+                className="py-2 px-4 rounded text-sm font-semibold bg-gray-700 hover:bg-gray-600 text-white transition-colors"
+                disabled={selected.size > nfts.length}
+              >
+                {selected.size === nfts.length ? 'Deselect All' : 'Select All'}
+              </button>
+              <button
+                onClick={onBulkAction}
+                disabled={selected.size === 0}
+                className={`py-2 px-4 rounded text-sm font-semibold transition-colors
+                  ${selected.size === 0 
+                    ? 'bg-gray-600 cursor-not-allowed' 
+                    : action === 'Stake' 
+                      ? 'bg-[#0154fa] hover:bg-[#0143d1]' 
+                      : 'bg-red-500 hover:bg-red-600'
+                  } text-white`}
+              >
+                {bulkActionText} ({Math.min(selected.size, nfts.length)})
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="h-[500px] overflow-y-auto custom-scrollbar">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {nfts.map((nft) => (
-            <NFTCard key={nft.id} nft={nft} action={action} onAction={onAction} actionIcon={actionIcon} />
+            <NFTCard 
+              key={nft.id} 
+              nft={nft} 
+              action={action} 
+              onAction={onAction} 
+              actionIcon={actionIcon}
+              isSelected={selected.has(nft.id)}
+              onSelect={() => onSelect(nft.id)}
+            />
           ))}
         </div>
       </div>
@@ -285,30 +439,38 @@ function NFTList({ title, nfts, action, onAction, actionIcon }: NFTListProps) {
   )
 }
 
-function NFTCard({ nft, action, onAction, actionIcon }: NFTCardProps) {
+function NFTCard({ nft, action, onAction, actionIcon, isSelected, onSelect }: NFTCardProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="bg-gray-700 bg-opacity-50 rounded-lg overflow-hidden"
+      onClick={onSelect}
+      className={`bg-gray-700 bg-opacity-50 rounded-xl overflow-hidden relative cursor-pointer shadow-lg
+        ${isSelected ? 'ring-2 ring-[#0154fa] bg-[#0154fa] bg-opacity-10' : ''}`}
     >
-      <div className="relative aspect-square">
-        <Image 
-          src={nft.image} 
-          alt={nft.name} 
-          width={200} 
-          height={200} 
-          className="w-full h-full object-contain"
-          unoptimized
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-60" />
-        <h4 className="absolute bottom-2 left-2 text-sm font-semibold text-white">{nft.name}</h4>
+      <div className="p-2">
+        <div className="relative aspect-square w-full rounded-lg overflow-hidden">
+          <Image 
+            src={nft.image} 
+            alt={nft.name} 
+            fill
+            className={`object-contain ${isSelected ? 'opacity-80' : ''}`}
+            unoptimized
+          />
+        </div>
       </div>
+      
+      <div className="absolute bottom-[52px] left-0 right-0 px-4 py-2 bg-gradient-to-t from-black to-transparent">
+        <h4 className="text-sm font-semibold text-white">{nft.name}</h4>
+      </div>
+
       <div className="p-2">
         <button
-          onClick={() => onAction(nft)}
-          className={`w-full py-1.5 px-3 rounded text-sm text-white font-semibold transition-colors flex items-center justify-center ${
-            action === 'Stake' ? 'bg-[#0154fa] hover:bg-[#0143d1]' : 'bg-red-500 hover:bg-red-600'
-          }`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onAction(nft)
+          }}
+          className={`w-full py-2 px-4 rounded-lg text-sm text-white font-semibold transition-colors flex items-center justify-center
+            ${action === 'Stake' ? 'bg-[#0154fa] hover:bg-[#0143d1]' : 'bg-red-500 hover:bg-red-600'}`}
         >
           {action}
           <span className="ml-1.5">{actionIcon}</span>
