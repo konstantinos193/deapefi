@@ -121,3 +121,27 @@ footer {
   background: rgba(17, 24, 39, 0.8);
   backdrop-filter: blur(12px);
 }
+
+@media screen and (max-width: 768px) {
+  body {
+    padding-bottom: 80px;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(17, 24, 39, 0.8);
+    backdrop-filter: blur(12px);
+    height: 80px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    z-index: 50;
+  }
+
+  .custom-scrollbar {
+    max-height: calc(100vh - 80px);
+  }
+}
