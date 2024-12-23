@@ -23,7 +23,7 @@ interface NFTListProps {
   onAction: (nft: NFT) => Promise<void>
   actionIcon: React.ReactNode
   selected: Set<string>
-  onSelect: (id: string) => void
+  onSelect: (id: string | Set<string>) => void
   onBulkAction: () => Promise<void>
   bulkActionText: string
 }
