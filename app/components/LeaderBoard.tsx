@@ -28,10 +28,11 @@ export default function LeaderBoard() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentAddress, setCurrentAddress] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState('')
 
   const fetchLeaderboard = async () => {
     try {
-      const provider = new ethers.providers.Web3Provider((window as WindowWithEthereum).ethereum)
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
       const signer = provider.getSigner()
       const userAddress = await signer.getAddress()
       setCurrentAddress(userAddress.toLowerCase())
@@ -121,6 +122,10 @@ export default function LeaderBoard() {
     }
   }
 
+  const filteredLeaderboard = leaderboard.filter(entry =>
+    entry.address.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[500px]">
@@ -130,31 +135,34 @@ export default function LeaderBoard() {
   }
 
   return (
-    <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg p-8 rounded-2xl shadow-2xl mb-8">
-      <h2 className="text-3xl font-bold mb-8 text-white flex items-center">
-        <Trophy className="w-8 h-8 mr-3 text-[#0154fa]" />
-        Staking Leaderboard
-      </h2>
-      <div className="h-[500px] overflow-y-auto custom-scrollbar">
+    <div className="w-full max-w-4xl mx-auto p-4">
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by address..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 rounded bg-[#1a1b1f] border border-gray-700 text-white"
+        />
+      </div>
+
+      <div className="bg-[#1a1b1f] rounded-lg overflow-hidden">
         <table className="w-full">
-          <thead className="sticky top-0 bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-lg z-10">
-            <tr className="text-left border-b border-gray-700">
-              <th className="pb-4 text-gray-400">Rank</th>
-              <th className="pb-4 text-gray-400">Address</th>
-              <th className="pb-4 text-gray-400 text-right">Points</th>
+          <thead>
+            <tr className="border-b border-gray-700 bg-opacity-40">
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-400">Rank</th>
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-400">Address</th>
+              <th className="py-3 px-4 text-right text-sm font-semibold text-gray-400">Points</th>
             </tr>
           </thead>
           <tbody>
-            {leaderboard.map((entry, index) => (
+            {filteredLeaderboard.map((entry, index) => (
               <tr 
-                key={entry.address} 
-                className={`border-b transition-colors ${getRankStyle(index)} ${
-                  entry.address.toLowerCase() === currentAddress 
-                    ? 'border-[#0154fa] bg-[#0154fa]/10' 
-                    : ''
-                }`}
+                key={entry.address}
+                className={`border-b border-gray-700 hover:bg-gray-800 
+                  ${entry.address.toLowerCase() === currentAddress ? 'bg-blue-900 bg-opacity-20' : ''}`}
               >
-                <td className="py-4 text-white">
+                <td className="py-4 px-4">
                   <div className="flex items-center">
                     {getRankIcon(index)}
                     <span className={index < 3 ? 'ml-2' : ''}>
@@ -162,14 +170,14 @@ export default function LeaderBoard() {
                     </span>
                   </div>
                 </td>
-                <td className="py-4 text-white font-mono">
+                <td className="py-4 px-4 font-mono">
                   {entry.address.toLowerCase() === currentAddress ? (
-                    <span className="text-[#0154fa]">You</span>
+                    <span className="text-blue-400">You</span>
                   ) : (
                     `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`
                   )}
                 </td>
-                <td className="py-4 text-white text-right font-bold">
+                <td className="py-4 px-4 text-right font-bold">
                   {entry.points.toLocaleString()}
                 </td>
               </tr>
