@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { sessionStore } from '../../../../lib/sessionStore'
+import { sessionStore, Session } from '../../../../lib/sessionStore'
 import { ethers } from 'ethers'
 
 export async function GET(
@@ -43,7 +43,7 @@ export async function POST(
 
     // Add wallet to session if it doesn't exist
     if (!session.wallets.includes(address)) {
-      const updatedSession = {
+      const updatedSession: Session = {
         ...session,
         wallets: [...session.wallets, address]
       }
