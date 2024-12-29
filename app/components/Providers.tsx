@@ -2,8 +2,11 @@
 
 import dynamic from 'next/dynamic'
 import { SessionProvider } from '../contexts/SessionContext'
-import { WalletProvider } from '../providers/WalletProvider'
+import { WalletProvider as BaseWalletProvider } from '../providers/WalletProvider'
 import { ReactNode } from 'react'
+
+// Export WalletProvider
+export { BaseWalletProvider as WalletProvider }
 
 // Create a client-only version of DiscordProfile
 const DynamicDiscordProfile = dynamic(
@@ -14,9 +17,9 @@ const DynamicDiscordProfile = dynamic(
 // Create a wrapper component that includes both providers and the profile
 const WrappedProviders = ({ children }: { children: ReactNode }) => (
   <SessionProvider>
-    <WalletProvider>
+    <BaseWalletProvider>
       {children}
-    </WalletProvider>
+    </BaseWalletProvider>
   </SessionProvider>
 )
 
