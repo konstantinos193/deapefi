@@ -1,40 +1,21 @@
 import { NextResponse } from 'next/server'
-
-// In-memory sessions (replace with database in production)
-const sessions = new Map()
+import { sessionStore } from '../../../../lib/sessionStore'
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: { sessionId: string } }
 ) {
   console.log('GET session:', params.sessionId)
 
-  try {
-    // Get session from memory or create new
-    let session = sessions.get(params.sessionId)
-    
-    if (!session) {
-      // Initialize new session
-      session = {
-        id: params.sessionId,
-        username: 'konstantinos193', // Get this from your Discord OAuth flow
-        isDiscordConnected: true,    // This should be set when Discord auth completes
-        wallets: [],
-        createdAt: new Date().toISOString()
-      }
-      sessions.set(params.sessionId, session)
-    }
-
-    console.log('Returning session:', session)
-    return NextResponse.json(session)
-
-  } catch (error: any) {
-    console.error('Session fetch error:', error)
+  const session = sessionStore.get(params.sessionId)
+  if (!session) {
     return NextResponse.json(
-      { error: 'Failed to fetch session' },
-      { status: 500 }
+      { error: 'Session not found' },
+      { status: 404 }
     )
   }
+
+  return NextResponse.json(session)
 }
 
 export async function POST(
@@ -42,31 +23,32 @@ export async function POST(
   { params }: { params: { sessionId: string } }
 ) {
   try {
-    const body = await request.json()
-    const { username } = body
+    const { address, signature, message } = await request.json()
+    const session = sessionStore.get(params.sessionId)
 
-    let session = sessions.get(params.sessionId)
     if (!session) {
-      session = {
-        id: params.sessionId,
-        username,
-        isDiscordConnected: true,
-        wallets: [],
-        createdAt: new Date().toISOString()
-      }
-    } else {
-      session.username = username
-      session.isDiscordConnected = true
+      return NextResponse.json(
+        { error: 'Session not found' },
+        { status: 404 }
+      )
     }
 
-    sessions.set(params.sessionId, session)
-    return NextResponse.json(session)
+    const updatedSession = {
+      ...session,
+      wallets: [...session.wallets, address]
+    }
 
-  } catch (error: any) {
-    console.error('Session update error:', error)
+    sessionStore.update(params.sessionId, updatedSession)
+
+    return NextResponse.json({
+      success: true,
+      session: updatedSession
+    })
+  } catch (error) {
+    console.error('Wallet connection error:', error)
     return NextResponse.json(
-      { error: 'Failed to update session' },
+      { error: 'Failed to connect wallet' },
       { status: 500 }
     )
   }
-} 
+}
