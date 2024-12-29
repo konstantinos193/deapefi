@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server'
-import { sessions } from '../create-session/route'
+import { sessionStore } from '../../../lib/sessionStore'
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET
-const DISCORD_REDIRECT_URI = process.env.NEXT_PUBLIC_BASE_URL + '/api/discord/callback'
+const REDIRECT_URI = process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get('code')
-    const state = searchParams.get('state') // This is our sessionId
+    const state = searchParams.get('state')
 
     if (!code || !state) {
-      throw new Error('Missing code or state')
+      return NextResponse.redirect('/error?message=Invalid OAuth callback')
     }
 
     // Exchange code for access token
@@ -26,11 +26,16 @@ export async function GET(request: Request) {
         client_secret: DISCORD_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: DISCORD_REDIRECT_URI,
+        redirect_uri: REDIRECT_URI!,
       }),
     })
 
     const tokenData = await tokenResponse.json()
+
+    if (!tokenResponse.ok) {
+      console.error('Token exchange failed:', tokenData)
+      return NextResponse.redirect('/error?message=Authentication failed')
+    }
 
     // Get user info
     const userResponse = await fetch('https://discord.com/api/users/@me', {
@@ -41,21 +46,27 @@ export async function GET(request: Request) {
 
     const userData = await userResponse.json()
 
-    // Update session
-    const session = sessions.get(state)
-    if (!session) {
-      throw new Error('Invalid session')
+    if (!userResponse.ok) {
+      console.error('User info fetch failed:', userData)
+      return NextResponse.redirect('/error?message=Failed to get user info')
     }
 
-    session.isDiscordConnected = true
-    session.discordId = userData.id
-    session.username = userData.username
+    // Create a new session
+    const sessionId = sessionStore.create({
+      discordId: userData.id,
+      username: userData.username,
+      wallets: []
+    })
 
-    // Redirect back to verification page
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/discord/connect/${state}`)
+    // Redirect to the profile page with session info
+    const redirectUrl = new URL(`/discord/profile/${userData.id}`, process.env.NEXT_PUBLIC_APP_URL)
+    redirectUrl.searchParams.set('sessionId', sessionId)
+    redirectUrl.searchParams.set('username', userData.username)
+    redirectUrl.searchParams.set('discordId', userData.id)
 
+    return NextResponse.redirect(redirectUrl.toString())
   } catch (error) {
     console.error('Discord callback error:', error)
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/error?message=Authentication failed`)
+    return NextResponse.redirect('/error?message=Authentication failed')
   }
 } 
