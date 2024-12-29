@@ -25,7 +25,8 @@ async function updateProfileInDatabase(updatedData: DiscordProfile): Promise<Dis
 }
 
 export async function GET(
-  { params }: { params: { discordId: string } }
+  request: NextRequest,
+  { params }: { params: { discordId: string } } // Keep the correct parameter signature for route
 ) {
   try {
     // Fetch profile from the database
