@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { sessionStore } from '../../../../lib/sessionStore'
+import { ethers } from 'ethers'
 
 export async function GET(
   _request: Request,
@@ -23,7 +24,7 @@ export async function POST(
   { params }: { params: { sessionId: string } }
 ) {
   try {
-    const { address, signature, message } = await request.json()
+    const { address } = await request.json()
     const session = sessionStore.get(params.sessionId)
 
     if (!session) {
@@ -33,17 +34,33 @@ export async function POST(
       )
     }
 
-    const updatedSession = {
-      ...session,
-      wallets: [...session.wallets, address]
+    if (!ethers.utils.isAddress(address)) {
+      return NextResponse.json(
+        { error: 'Invalid wallet address' },
+        { status: 400 }
+      )
     }
 
-    sessionStore.update(params.sessionId, updatedSession)
+    // Add wallet to session if it doesn't exist
+    if (!session.wallets.includes(address)) {
+      const updatedSession = {
+        ...session,
+        wallets: [...session.wallets, address]
+      }
+
+      sessionStore.update(params.sessionId, updatedSession)
+
+      return NextResponse.json({
+        success: true,
+        session: updatedSession
+      })
+    }
 
     return NextResponse.json({
       success: true,
-      session: updatedSession
+      session
     })
+
   } catch (error) {
     console.error('Wallet connection error:', error)
     return NextResponse.json(
