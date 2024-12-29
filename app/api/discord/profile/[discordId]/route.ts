@@ -25,11 +25,13 @@ async function updateProfileInDatabase(updatedData: DiscordProfile): Promise<Dis
 }
 
 export async function GET(
-  { params }: { params: { discordId: string } } // Only destructure params here, no need for request
+  request: NextRequest,
+  context: { params: { discordId: string } }
 ) {
   try {
+    const { discordId } = context.params; // Extract discordId from context.params
     // Fetch profile from the database
-    const profile: DiscordProfile = await getProfileFromDatabase(params.discordId);
+    const profile: DiscordProfile = await getProfileFromDatabase(discordId);
     return NextResponse.json(profile);
   } catch (error) {
     return NextResponse.json(
