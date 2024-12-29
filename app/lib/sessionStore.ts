@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 // Define the Session interface
 export interface Session {
   discordId: string
@@ -23,11 +25,11 @@ export const sessionStore = {
     return sessionId
   },
 
-  get: (sessionId: string) => {
+  get: (sessionId: string): Session | undefined => {
     return sessions.get(sessionId)
   },
 
-  update: (sessionId: string, data: Partial<Session>) => {
+  update: (sessionId: string, data: Partial<Session>): boolean => {
     const session = sessions.get(sessionId)
     if (session) {
       sessions.set(sessionId, { ...session, ...data })
@@ -36,11 +38,11 @@ export const sessionStore = {
     return false
   },
 
-  delete: (sessionId: string) => {
+  delete: (sessionId: string): boolean => {
     return sessions.delete(sessionId)
   },
 
-  cleanup: () => {
+  cleanup: (): void => {
     const now = Date.now()
     for (const [id, session] of sessions.entries()) {
       if (now > session.expiresAt) {
