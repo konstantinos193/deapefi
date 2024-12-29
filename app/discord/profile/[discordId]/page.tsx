@@ -1,5 +1,5 @@
-import DiscordProfile from '@/app/components/DiscordProfile'
-import { WalletProvider } from '@/app/providers/WalletProvider'
+import DiscordProfile from '../../../components/DiscordProfile'
+import { WalletProvider } from '../../../components/Providers'
 
 export default function DiscordProfilePage({
   params
