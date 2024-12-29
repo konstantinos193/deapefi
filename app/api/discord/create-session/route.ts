@@ -1,16 +1,15 @@
-import { NextResponse } from 'next/server'
-import crypto from 'crypto'
-import { sessionStore } from '../../../lib/sessionStore'
+import { NextResponse } from 'next/server';
+import { sessionStore } from '../../../lib/sessionStore';
 
 export async function POST(request: Request) {
   try {
-    const { discordId, username } = await request.json()
+    const { discordId, username } = await request.json();
 
     if (!discordId || !username) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
-      )
+      );
     }
 
     // Create a new session
@@ -18,17 +17,17 @@ export async function POST(request: Request) {
       discordId,
       username,
       wallets: []
-    })
+    });
 
     // Clean up expired sessions
-    sessionStore.cleanup()
+    sessionStore.cleanup();
 
-    return NextResponse.json({ sessionId })
+    return NextResponse.json({ sessionId });
   } catch (error) {
-    console.error('Session creation error:', error)
+    console.error('Session creation error:', error);
     return NextResponse.json(
       { error: 'Failed to create session' },
       { status: 500 }
-    )
+    );
   }
-} 
+}
