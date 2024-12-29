@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
 
+// Move sessions to a separate store file
+import { sessions } from '../../../lib/sessionStore'
+
 interface Session {
   discordId: string
   username: string
@@ -8,9 +11,6 @@ interface Session {
   createdAt: number
   expiresAt: number
 }
-
-// In-memory session storage (replace with your database in production)
-export const sessions = new Map<string, Session>()
 
 export async function POST(request: Request) {
   try {
