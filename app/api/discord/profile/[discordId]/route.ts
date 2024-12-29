@@ -19,9 +19,9 @@ async function getProfileFromDatabase(discordId: string): Promise<DiscordProfile
 }
 
 // Mock function to simulate updating a profile in the database
-async function updateProfileInDatabase(discordId: string, updatedData: DiscordProfile): Promise<DiscordProfile> {
-  // Simulate updating the profile in a database (replace with actual logic)
-  return updatedData;
+async function updateProfileInDatabase(updatedData: DiscordProfile): Promise<DiscordProfile> {
+  // No need for discordId here if it's not being used
+  return updatedData; // Simulate updating the profile in a database (replace with actual logic)
 }
 
 export async function GET(
@@ -47,7 +47,7 @@ export async function POST(
   try {
     const body: DiscordProfile = await request.json();
     // Update profile in the database
-    const updatedProfile = await updateProfileInDatabase(params.discordId, body);
+    const updatedProfile = await updateProfileInDatabase(body); // No discordId needed now
     return NextResponse.json(updatedProfile);
   } catch (error) {
     return NextResponse.json(
