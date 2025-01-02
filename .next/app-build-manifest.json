@@ -21,6 +21,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/staking/layout.js"
     ],
+    "/staking/dashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/staking/dashboard/page.js"
+    ],
     "/staking/manage/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -30,11 +35,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/staking/leaderboard/page.js"
-    ],
-    "/discord/connect/[sessionId]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/discord/connect/[sessionId]/page.js"
     ],
     "/discord/connect/page": [
       "static/chunks/webpack.js",
