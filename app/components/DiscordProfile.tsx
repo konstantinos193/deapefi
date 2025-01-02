@@ -16,8 +16,8 @@ export default function DiscordProfile() {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
 
-  // Update initializeSession to handle discordId
-  const initializeSession = async (sessionId, username, discordId) => {
+  // Define types for sessionId, username, and discordId
+  const initializeSession = async (sessionId: string, username: string, discordId: string) => {
     try {
       const response = await fetch(`http://localhost:3001/api/discord/webhook`, {
         method: 'POST',
