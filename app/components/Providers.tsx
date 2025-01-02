@@ -35,13 +35,15 @@ export function WrappedDiscordProfile() {
   // Extract the session data
   const { session } = useSession()
 
-  // Ensure session data exists before rendering DiscordProfile
-  if (!session) {
-    return null; // or render a loading state
-  }
+  // Provide default values if session data is undefined
+  const sessionId = session?.id || ''
+  const username = session?.username || ''
+  const discordId = session?.discordId || ''
 
-  // Get sessionId, username, and discordId from session
-  const { id: sessionId, username, discordId } = session
+  // If any required prop is still an empty string, we could show an error or a fallback
+  if (!sessionId || !username || !discordId) {
+    return <div>Session data is missing</div>
+  }
 
   return (
     <Providers>
