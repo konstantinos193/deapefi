@@ -18,8 +18,11 @@ export async function signMessage(message: string, address: string): Promise<str
     // Request accounts first
     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-    // Get current account
-    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    // Get current account (cast to a string array)
+    const accounts = await window.ethereum.request({
+      method: 'eth_accounts',
+    }) as string[]; // Cast the result to an array of strings
+
     if (!accounts.includes(address.toLowerCase())) {
       throw new Error('Please switch to the correct account in MetaMask');
     }
