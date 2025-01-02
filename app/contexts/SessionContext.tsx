@@ -7,6 +7,9 @@ interface Wallet {
   address: string
   nftBalance?: number
   stakedNFTs?: string[]
+  totalNFTs?: number  // Add totalNFTs
+  tier?: number       // Add tier
+  totalPoints?: number // Add totalPoints
 }
 
 interface Session {
