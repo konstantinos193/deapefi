@@ -7,6 +7,8 @@ declare global {
   }
 }
 
+// app/utils/metamask.ts
+
 // Function to sign a message with MetaMask
 export async function signMessage(message: string, address: string): Promise<string> {
   try {
@@ -30,9 +32,10 @@ export async function signMessage(message: string, address: string): Promise<str
       params: [message, address],
     });
 
-    return signature;
+    return signature as string;
   } catch (error: any) {
     console.error('Signing error:', error);
     throw new Error(error.message || 'Failed to sign message');
   }
 }
+
