@@ -5,9 +5,9 @@ import { ethers } from 'ethers';
 // GET request handler for retrieving a session by sessionId
 export async function GET(request: Request) {
   try {
-    // Extract sessionId from the URL parameters (without destructuring in function parameters)
+    // Extract sessionId from the URL path (no destructuring here)
     const url = new URL(request.url);
-    const sessionId = url.pathname.split('/')[4]; // Extract the sessionId from the URL
+    const sessionId = url.pathname.split('/')[4]; // Assuming sessionId is in position 4 in the URL path
 
     console.log('GET session:', sessionId);
 
@@ -32,9 +32,9 @@ export async function POST(request: Request) {
   try {
     const { address } = await request.json(); // Extract address from the request body
 
-    // Extract sessionId from the URL parameters (without destructuring in function parameters)
+    // Extract sessionId from the URL path (no destructuring here)
     const url = new URL(request.url);
-    const sessionId = url.pathname.split('/')[4]; // Extract the sessionId from the URL
+    const sessionId = url.pathname.split('/')[4]; // Assuming sessionId is in position 4 in the URL path
 
     // Retrieve the session from sessionStore using sessionId
     const session = sessionStore.get(sessionId);
