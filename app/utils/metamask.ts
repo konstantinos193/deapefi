@@ -1,13 +1,11 @@
-// app/utils/metamask.ts
-
 // Global declaration for 'ethereum' that is consistent across the project
 declare global {
   interface Window {
-    ethereum?: any;  // Optional property to avoid conflicts
+    ethereum: {
+      request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+    };
   }
 }
-
-// app/utils/metamask.ts
 
 // Function to sign a message with MetaMask
 export async function signMessage(message: string, address: string): Promise<string> {
@@ -38,4 +36,3 @@ export async function signMessage(message: string, address: string): Promise<str
     throw new Error(error.message || 'Failed to sign message');
   }
 }
-
