@@ -3,12 +3,11 @@ import { sessionStore, Session } from '../../../../lib/sessionStore';
 import { ethers } from 'ethers';
 
 // GET request handler for retrieving a session by sessionId
-export async function GET(
-  _request: Request,
-  { params }: { params: { sessionId: string } } // Destructure sessionId from params
-) {
+export async function GET(request: Request) {
   try {
-    const { sessionId } = params;
+    // Extract sessionId from the URL parameters (without destructuring in function parameters)
+    const url = new URL(request.url);
+    const sessionId = url.pathname.split('/')[4]; // Extract the sessionId from the URL
 
     console.log('GET session:', sessionId);
 
@@ -29,14 +28,13 @@ export async function GET(
 }
 
 // POST request handler for adding a wallet address to a session
-export async function POST(
-  request: Request,
-  { params }: { params: { sessionId: string } } // Destructure sessionId from params
-) {
+export async function POST(request: Request) {
   try {
     const { address } = await request.json(); // Extract address from the request body
 
-    const { sessionId } = params;
+    // Extract sessionId from the URL parameters (without destructuring in function parameters)
+    const url = new URL(request.url);
+    const sessionId = url.pathname.split('/')[4]; // Extract the sessionId from the URL
 
     // Retrieve the session from sessionStore using sessionId
     const session = sessionStore.get(sessionId);
