@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import { NextResponse } from 'next/server'
-import crypto from 'crypto'
-import { sessionStore } from '../../../lib/sessionStore'
-=======
 import { NextResponse } from 'next/server';
 import { sessionStore } from '../../../lib/sessionStore';
->>>>>>> e9a442863b6cc4e54baf62a32992811a6f76e89e
 
 export async function POST(request: Request) {
   try {
@@ -22,18 +16,11 @@ export async function POST(request: Request) {
     const sessionId = sessionStore.create({
       discordId,
       username,
-      wallets: []
-<<<<<<< HEAD
-    })
-
-    // Clean up expired sessions
-    sessionStore.cleanup()
-=======
+      wallets: [],
     });
 
     // Clean up expired sessions
     sessionStore.cleanup();
->>>>>>> e9a442863b6cc4e54baf62a32992811a6f76e89e
 
     return NextResponse.json({ sessionId });
   } catch (error) {
