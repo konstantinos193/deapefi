@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useSession } from '../contexts/SessionContext'
 import { SessionProvider } from '../contexts/SessionContext'
 import { WalletProvider as BaseWalletProvider } from '../providers/WalletProvider'
 import { ReactNode } from 'react'
@@ -31,9 +32,21 @@ export const Providers = dynamic(
 
 // Export a pre-wrapped version of DiscordProfile
 export function WrappedDiscordProfile() {
+  // Extract the session data
+  const { session } = useSession()
+
+  // Ensure session data exists before rendering DiscordProfile
+  if (!session) {
+    return null; // or render a loading state
+  }
+
+  // Get sessionId, username, and discordId from session
+  const { id: sessionId, username, discordId } = session
+
   return (
     <Providers>
-      <DynamicDiscordProfile />
+      {/* Pass the required props to the DynamicDiscordProfile component */}
+      <DynamicDiscordProfile sessionId={sessionId} username={username} discordId={discordId} />
     </Providers>
   )
-} 
+}
