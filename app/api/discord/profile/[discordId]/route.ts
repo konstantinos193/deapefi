@@ -15,6 +15,12 @@ async function getProfileFromDatabase(discordId: string): Promise<DiscordProfile
   };
 }
 
+// You can use this function for updating a profile in the database as well.
+async function updateProfileInDatabase(profile: DiscordProfile): Promise<DiscordProfile> {
+  // Simulate a database update. You should implement the actual database logic.
+  return profile; // Returning the profile as it is for now
+}
+
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
@@ -32,11 +38,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { discordId: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
+    const url = new URL(request.url);
+    const discordId = url.pathname.split('/').pop(); // Extract discordId from the URL
+    if (!discordId) {
+      throw new Error('Invalid discordId');
+    }
+
     const body: DiscordProfile = await request.json();
     const updatedProfile = await updateProfileInDatabase(body);
     return NextResponse.json(updatedProfile);
