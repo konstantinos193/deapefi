@@ -1,7 +1,0 @@
-{
-  "/discord/connect/page": "app/discord/connect/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/staking/page": "app/staking/page.js",
-  "/staking/leaderboard/page": "app/staking/leaderboard/page.js",
-  "/staking/manage/page": "app/staking/manage/page.js"
-}
