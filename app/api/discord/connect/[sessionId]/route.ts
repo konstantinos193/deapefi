@@ -2,14 +2,17 @@ import { NextResponse } from 'next/server';
 import { sessionStore, Session } from '../../../../lib/sessionStore';
 import { ethers } from 'ethers';
 
+// Handle the GET request to retrieve a session based on sessionId
 export async function GET(
   _request: Request,
   { params }: { params: { sessionId: string } }
 ) {
   console.log('GET session:', params.sessionId);
 
-  // Retrieve the session from the sessionStore using the sessionId
+  // Retrieve the session from sessionStore using the sessionId
   const session = sessionStore.get(params.sessionId);
+
+  // If session is not found, return 404 error
   if (!session) {
     return NextResponse.json(
       { error: 'Session not found' },
@@ -17,10 +20,11 @@ export async function GET(
     );
   }
 
-  // Return the session if found
+  // If session is found, return the session
   return NextResponse.json(session);
 }
 
+// Handle the POST request to add a wallet address to a session
 export async function POST(
   request: Request,
   { params }: { params: { sessionId: string } }
@@ -29,9 +33,10 @@ export async function POST(
     // Parse the incoming JSON payload to extract the wallet address
     const { address } = await request.json();
 
-    // Retrieve the session from the sessionStore using the sessionId
+    // Retrieve the session from sessionStore using sessionId
     const session = sessionStore.get(params.sessionId);
 
+    // If session is not found, return 404 error
     if (!session) {
       return NextResponse.json(
         { error: 'Session not found' },
@@ -54,7 +59,7 @@ export async function POST(
         wallets: [...session.wallets, address],
       };
 
-      // Update the session in the sessionStore
+      // Update the session in sessionStore with the new wallet address
       sessionStore.update(params.sessionId, updatedSession);
 
       // Return the updated session
@@ -70,6 +75,7 @@ export async function POST(
       session,
     });
   } catch (error) {
+    // Log the error and return a generic error message
     console.error('Wallet connection error:', error);
     return NextResponse.json(
       { error: 'Failed to connect wallet' },
