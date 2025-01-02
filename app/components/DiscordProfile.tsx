@@ -5,7 +5,8 @@ import { useWallet } from '../contexts/WalletContext'
 import { useSession } from '../contexts/SessionContext'
 import { useSearchParams } from 'next/navigation'
 
-const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
+// Accessing the environment variable directly
+const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY; // This should be defined in .env file
 
 export default function DiscordProfile() {
   const searchParams = useSearchParams()
@@ -18,6 +19,11 @@ export default function DiscordProfile() {
 
   // Define types for sessionId, username, and discordId
   const initializeSession = async (sessionId: string, username: string, discordId: string) => {
+    if (!API_KEY) {
+      setError('API Key is missing');
+      return;
+    }
+
     try {
       const response = await fetch(`http://localhost:3001/api/discord/webhook`, {
         method: 'POST',
@@ -76,6 +82,11 @@ export default function DiscordProfile() {
   }, [session])
 
   const handleConnectWallet = async () => {
+    if (!API_KEY) {
+      setError('API Key is missing');
+      return;
+    }
+
     try {
       setIsLoading(true)
       setError('')
