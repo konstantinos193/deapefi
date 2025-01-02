@@ -12,6 +12,7 @@ interface Wallet {
 interface Session {
   id: string
   username?: string
+  discordId?: string  // Add this line to allow discordId
   isDiscordConnected: boolean
   wallets: Wallet[]
   createdAt: number
