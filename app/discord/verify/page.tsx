@@ -10,9 +10,18 @@ const DynamicDiscordProfile = dynamic(
 )
 
 export default function VerifyPage() {
+  // Mock values for props (You can get them from context, API, or props)
+  const sessionId = 'mockSessionId' // Replace with real session ID logic
+  const discordId = 'mockDiscordId' // Replace with real Discord ID logic
+  const username = 'TestUser#1234' // Replace with real username logic
+
   return (
     <Providers>
-      <DynamicDiscordProfile />
+      <DynamicDiscordProfile
+        sessionId={sessionId}  // Pass sessionId
+        discordId={discordId}  // Pass discordId
+        username={username}    // Pass username
+      />
     </Providers>
   )
-} 
+}
