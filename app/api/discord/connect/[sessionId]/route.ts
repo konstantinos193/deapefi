@@ -2,84 +2,75 @@ import { NextResponse } from 'next/server';
 import { sessionStore, Session } from '../../../../lib/sessionStore';
 import { ethers } from 'ethers';
 
-// Handle the GET request to retrieve a session based on sessionId
+// GET request handler for retrieving a session by sessionId
 export async function GET(
   _request: Request,
-  { params }: { params: { sessionId: string } } // Properly destructure params here
-) {
-  console.log('GET session:', params.sessionId);
-
-  // Retrieve the session from sessionStore using the sessionId
-  const session = sessionStore.get(params.sessionId);
-
-  // If session is not found, return 404 error
-  if (!session) {
-    return NextResponse.json(
-      { error: 'Session not found' },
-      { status: 404 }
-    );
-  }
-
-  // If session is found, return the session
-  return NextResponse.json(session);
-}
-
-// Handle the POST request to add a wallet address to a session
-export async function POST(
-  request: Request,
-  { params }: { params: { sessionId: string } } // Correct destructuring of params
+  { params }: { params: { sessionId: string } } // Destructure sessionId from params
 ) {
   try {
-    // Parse the incoming JSON payload to extract the wallet address
-    const { address } = await request.json();
+    const { sessionId } = params;
+
+    console.log('GET session:', sessionId);
 
     // Retrieve the session from sessionStore using sessionId
-    const session = sessionStore.get(params.sessionId);
+    const session = sessionStore.get(sessionId);
 
-    // If session is not found, return 404 error
     if (!session) {
-      return NextResponse.json(
-        { error: 'Session not found' },
-        { status: 404 }
-      );
+      // Return 404 error if session is not found
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    // Validate the wallet address
+    // Return the session if found
+    return NextResponse.json(session);
+  } catch (error) {
+    console.error('Error retrieving session:', error);
+    return NextResponse.json({ error: 'Failed to retrieve session' }, { status: 500 });
+  }
+}
+
+// POST request handler for adding a wallet address to a session
+export async function POST(
+  request: Request,
+  { params }: { params: { sessionId: string } } // Destructure sessionId from params
+) {
+  try {
+    const { address } = await request.json(); // Extract address from the request body
+
+    const { sessionId } = params;
+
+    // Retrieve the session from sessionStore using sessionId
+    const session = sessionStore.get(sessionId);
+
+    if (!session) {
+      // Return 404 error if session is not found
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
+
+    // Validate the wallet address format
     if (!ethers.utils.isAddress(address)) {
-      return NextResponse.json(
-        { error: 'Invalid wallet address' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
     }
 
-    // Add the wallet address to the session if it doesn't already exist
+    // Check if the wallet address already exists in the session
     if (!session.wallets.includes(address)) {
+      // Add the wallet address to the session if not already included
       const updatedSession: Session = {
         ...session,
         wallets: [...session.wallets, address],
       };
 
       // Update the session in sessionStore with the new wallet address
-      sessionStore.update(params.sessionId, updatedSession);
+      sessionStore.update(sessionId, updatedSession);
 
       // Return the updated session
-      return NextResponse.json({
-        success: true,
-        session: updatedSession,
-      });
+      return NextResponse.json({ success: true, session: updatedSession });
     }
 
     // If the wallet address already exists, return the existing session
-    return NextResponse.json({
-      success: true,
-      session,
-    });
+    return NextResponse.json({ success: true, session });
   } catch (error) {
-    // Log the error and return a generic error message
+    // Log and return a server error response
     console.error('Wallet connection error:', error);
-    return NextResponse.json(
-      { error: 'Failed to connect wallet' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to connect wallet' }, { status: 500 });
   }
 }
