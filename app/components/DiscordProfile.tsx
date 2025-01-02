@@ -45,7 +45,7 @@ export default function DiscordProfile() {
       const data = await response.json()
       console.log('Session initialized with Discord ID:', discordId)
       console.log('Data from server:', data) // Log or use `data` here
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Failed to initialize session:', error)
       setError('Failed to initialize verification. Please try again.')
     }
@@ -141,9 +141,13 @@ export default function DiscordProfile() {
 
       setProgress(100)
       setStatus('Wallet verified!')
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Wallet connection error:', error)
-      setError(error.message || 'Failed to connect wallet')
+      if (error instanceof Error) {
+        setError(error.message || 'Failed to connect wallet')
+      } else {
+        setError('An unknown error occurred')
+      }
     } finally {
       setIsLoading(false)
       setProgress(0)
