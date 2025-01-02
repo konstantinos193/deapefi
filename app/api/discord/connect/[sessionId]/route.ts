@@ -68,8 +68,4 @@ export async function POST(
       { status: 500 }
     )
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> e9a442863b6cc4e54baf62a32992811a6f76e89e
