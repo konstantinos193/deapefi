@@ -20,8 +20,7 @@ export async function GET(
 }
 
 export async function POST(
-  request: Request,
-  { params }: { params: { sessionId: string } }
+  request: Request
 ) {
   try {
     const { address } = await request.json()
