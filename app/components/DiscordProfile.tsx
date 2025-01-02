@@ -44,6 +44,7 @@ export default function DiscordProfile() {
 
       const data = await response.json()
       console.log('Session initialized with Discord ID:', discordId)
+      console.log('Data from server:', data) // Log or use `data` here
     } catch (error) {
       console.error('Failed to initialize session:', error)
       setError('Failed to initialize verification. Please try again.')
