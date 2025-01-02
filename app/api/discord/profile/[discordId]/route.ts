@@ -1,26 +1,34 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-// You'll need to implement your database logic here
 interface DiscordProfile {
-  discordId: string
-  username: string
-  wallets: string[]
+  discordId: string;
+  username: string;
+  wallets: string[];
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { discordId: string } }
-) {
+async function getProfileFromDatabase(discordId: string): Promise<DiscordProfile> {
+  return {
+    discordId,
+    username: 'SampleUser',
+    wallets: ['wallet1', 'wallet2'],
+  };
+}
+
+export async function GET(request: NextRequest) {
   try {
-    // Fetch profile from your database
-    const profile = await getProfileFromDatabase(params.discordId)
-    return NextResponse.json(profile)
+    const url = new URL(request.url);
+    const discordId = url.pathname.split('/').pop(); // Extract discordId from the URL
+    if (!discordId) {
+      throw new Error('Invalid discordId');
+    }
+    const profile: DiscordProfile = await getProfileFromDatabase(discordId);
+    return NextResponse.json(profile);
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch profile' },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -29,14 +37,13 @@ export async function POST(
   { params }: { params: { discordId: string } }
 ) {
   try {
-    const body = await request.json()
-    // Update profile in your database
-    const updatedProfile = await updateProfileInDatabase(params.discordId, body)
-    return NextResponse.json(updatedProfile)
+    const body: DiscordProfile = await request.json();
+    const updatedProfile = await updateProfileInDatabase(body);
+    return NextResponse.json(updatedProfile);
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }
-    )
+    );
   }
-} 
+}
