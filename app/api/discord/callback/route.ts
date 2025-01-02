@@ -34,7 +34,8 @@ export async function GET(request: Request) {
 
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', tokenData)
-      return NextResponse.redirect('/error?message=Authentication failed')
+      // Redirect to the homepage instead of error page
+      return NextResponse.redirect('/')
     }
 
     // Get user info
@@ -48,7 +49,8 @@ export async function GET(request: Request) {
 
     if (!userResponse.ok) {
       console.error('User info fetch failed:', userData)
-      return NextResponse.redirect('/error?message=Failed to get user info')
+      // Redirect to the homepage instead of error page
+      return NextResponse.redirect('/')
     }
 
     // Create a new session
@@ -67,6 +69,7 @@ export async function GET(request: Request) {
     return NextResponse.redirect(redirectUrl.toString())
   } catch (error) {
     console.error('Discord callback error:', error)
-    return NextResponse.redirect('/error?message=Authentication failed')
+    // In case of any error (network, API failure, etc.), redirect to the homepage
+    return NextResponse.redirect('/')
   }
-} 
+}
