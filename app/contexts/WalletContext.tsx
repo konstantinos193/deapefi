@@ -84,7 +84,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       // Request account access
       const accounts = await window.ethereum.request({ 
         method: 'eth_requestAccounts' 
-      })
+      }) as string[];  // Type assertion here
 
       // Switch to ApeChain
       try {
