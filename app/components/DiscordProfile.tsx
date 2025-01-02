@@ -6,10 +6,15 @@ import { useSession } from '../contexts/SessionContext'
 import { useSearchParams } from 'next/navigation'
 
 // Accessing the environment variable directly
-const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY; // This should be defined in .env file
+const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
 
-export default function DiscordProfile() {
-  const searchParams = useSearchParams()
+interface DiscordProfileProps {
+  sessionId: string; // Expecting sessionId as a prop
+  username: string;  // Expecting username as a prop
+  discordId: string; // Expecting discordId as a prop
+}
+
+export default function DiscordProfile({ sessionId, username, discordId }: DiscordProfileProps) {
   const { connectWallet, signMessage } = useWallet()
   const { session, updateSession } = useSession()
   const [isLoading, setIsLoading] = useState(false)
@@ -17,7 +22,6 @@ export default function DiscordProfile() {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
 
-  // Define types for sessionId, username, and discordId
   const initializeSession = async (sessionId: string, username: string, discordId: string) => {
     if (!API_KEY) {
       setError('API Key is missing');
@@ -34,7 +38,7 @@ export default function DiscordProfile() {
         body: JSON.stringify({
           sessionId,
           username: decodeURIComponent(username),
-          discordId, // Pass Discord ID to the backend
+          discordId,
         }),
       })
 
@@ -44,7 +48,7 @@ export default function DiscordProfile() {
 
       const data = await response.json()
       console.log('Session initialized with Discord ID:', discordId)
-      console.log('Data from server:', data) // Log or use `data` here
+      console.log('Data from server:', data)
     } catch (error: unknown) {
       console.error('Failed to initialize session:', error)
       setError('Failed to initialize verification. Please try again.')
@@ -52,35 +56,20 @@ export default function DiscordProfile() {
   }
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const sessionId = params.get('sessionId')
-    const username = params.get('username')
-    const discordId = params.get('discordId') // Extract Discord ID from URL
-
-    if (!sessionId || !username || !discordId) {
-      setError('Invalid verification link. Please request a new one.')
-      return
-    }
-
-    // Call the initializeSession function with Discord ID
+    // Call initializeSession here using the props
     initializeSession(sessionId, username, discordId)
 
     // Update session state
     updateSession({
       id: sessionId,
-      discordId, // Include Discord ID in session state
+      discordId,
       username: decodeURIComponent(username),
       isDiscordConnected: true,
       wallets: [],
       createdAt: Date.now(),
       expiresAt: Date.now() + 24 * 60 * 60 * 1000,
     })
-  }, [])
-
-  // Log session changes
-  useEffect(() => {
-    console.log('Session updated:', session)
-  }, [session])
+  }, [sessionId, username, discordId])
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
@@ -155,7 +144,7 @@ export default function DiscordProfile() {
     }
   }
 
-  if (!session || !searchParams) {
+  if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -167,9 +156,7 @@ export default function DiscordProfile() {
     <div className="max-w-2xl mx-auto p-6 space-y-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2">Wallet Verification</h1>
-        <p className="text-muted-foreground">
-          Connect your wallets to verify NFT ownership
-        </p>
+        <p className="text-muted-foreground">Connect your wallets to verify NFT ownership</p>
       </div>
 
       <div className="space-y-6">
