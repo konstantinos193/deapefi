@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 // Handle the GET request to retrieve a session based on sessionId
 export async function GET(
   _request: Request,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: { sessionId: string } } // Properly destructure params here
 ) {
   console.log('GET session:', params.sessionId);
 
@@ -27,7 +27,7 @@ export async function GET(
 // Handle the POST request to add a wallet address to a session
 export async function POST(
   request: Request,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: { sessionId: string } } // Correct destructuring of params
 ) {
   try {
     // Parse the incoming JSON payload to extract the wallet address
