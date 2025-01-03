@@ -4,6 +4,7 @@ import { sessionStore } from '../../../lib/sessionStore'
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET
 const REDIRECT_URI = process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL
 
 export async function GET(request: Request) {
   try {
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     const state = searchParams.get('state')
 
     if (!code || !state) {
-      return NextResponse.redirect('/error?message=Invalid OAuth callback')
+      return NextResponse.redirect(`${APP_URL}/error?message=Invalid OAuth callback`)
     }
 
     // Exchange code for access token
@@ -34,8 +35,7 @@ export async function GET(request: Request) {
 
     if (!tokenResponse.ok) {
       console.error('Token exchange failed:', tokenData)
-      // Redirect to the homepage instead of error page
-      return NextResponse.redirect('/')
+      return NextResponse.redirect(`${APP_URL}/error?message=Authentication failed`)
     }
 
     // Get user info
@@ -49,8 +49,7 @@ export async function GET(request: Request) {
 
     if (!userResponse.ok) {
       console.error('User info fetch failed:', userData)
-      // Redirect to the homepage instead of error page
-      return NextResponse.redirect('/')
+      return NextResponse.redirect(`${APP_URL}/error?message=Failed to get user info`)
     }
 
     // Create a new session
@@ -61,15 +60,11 @@ export async function GET(request: Request) {
     })
 
     // Redirect to the profile page with session info
-    const redirectUrl = new URL(`/discord/profile/${userData.id}`, process.env.NEXT_PUBLIC_APP_URL)
-    redirectUrl.searchParams.set('sessionId', sessionId)
-    redirectUrl.searchParams.set('username', userData.username)
-    redirectUrl.searchParams.set('discordId', userData.id)
+    const redirectUrl = `${APP_URL}/discord/profile/${userData.id}?sessionId=${sessionId}&username=${userData.username}&discordId=${userData.id}`
 
-    return NextResponse.redirect(redirectUrl.toString())
+    return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error('Discord callback error:', error)
-    // In case of any error (network, API failure, etc.), redirect to the homepage
-    return NextResponse.redirect('/')
+    return NextResponse.redirect(`${APP_URL}/error?message=Authentication failed`)
   }
 }
