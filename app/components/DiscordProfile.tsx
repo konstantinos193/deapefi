@@ -77,82 +77,58 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
-      setError('API Key is missing');
-      return;
+        setError('API Key is missing');
+        return;
     }
 
     try {
-      setIsLoading(true)
-      setError('')
-      setProgress(0)
+        setIsLoading(true);
+        setError('');
+        setProgress(0);
 
-      // Make sure we have a valid session
-      if (!session?.id) {
-          throw new Error('No active session');
-      }
+        setStatus('Connecting wallet...');
+        const address = await connectWallet();
+        setProgress(30);
 
-      setStatus('Connecting wallet...')
-      const address = await connectWallet()
-      setProgress(30)
+        setStatus('Signing verification message...');
+        const timestamp = Date.now();
+        const message = `Verify wallet ownership\nWallet: ${address}\nTimestamp: ${timestamp}`;
+        const signature = await signMessage(message);
+        setProgress(50);
 
-      setStatus('Signing verification message...')
-      const timestamp = Date.now()
-      const message = `Verify wallet ownership\nWallet: ${address}\nTimestamp: ${timestamp}`
-      const signature = await signMessage(message)
-      setProgress(50)
+        // Use sessionId from props
+        const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${sessionId}/wallets`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': API_KEY
+            },
+            body: JSON.stringify({
+                address,
+                signature,
+                message,
+                timestamp,
+            }),
+        });
 
-      // Use the correct API endpoint
-      const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${session?.id}/wallets`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY
-        },
-        body: JSON.stringify({
-          address,
-          signature,
-          message,
-          timestamp,
-        }),
-      })
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to verify wallet ownership');
+        }
 
-      if (!response.ok) {
-        throw new Error('Failed to verify wallet ownership')
-      }
+        // Update session with new wallet data
+        updateSession(data.session);
+        setProgress(100);
+        setStatus('Wallet connected successfully!');
 
-      const data = await response.json()
-      setProgress(80)
-
-      updateSession({
-        ...session!,
-        wallets: [
-          ...(session?.wallets || []),
-          {
-            address,
-            nftBalance: data.walletInfo.nftBalance || 0,
-            stakedNFTs: data.walletInfo.stakedNFTs || [],
-            totalNFTs: data.walletInfo.totalNFTs || 0,
-            tier: data.walletInfo.tier || 0,
-            totalPoints: data.walletInfo.totalPoints || 0,
-          },
-        ],
-      })
-
-      setProgress(100)
-      setStatus('Wallet verified!')
-    } catch (error: unknown) {
-      console.error('Wallet connection error:', error)
-      if (error instanceof Error) {
-        setError(error.message || 'Failed to connect wallet')
-      } else {
-        setError('An unknown error occurred')
-      }
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        setError(error.message);
     } finally {
-      setIsLoading(false)
-      setProgress(0)
-      setStatus('')
+        setIsLoading(false);
     }
-  }
+  };
 
   if (!session) {
     return (
