@@ -5,6 +5,7 @@ import { useWallet } from '../contexts/WalletContext'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
 export default function StakingPage() {
   const { isConnected } = useWallet()
@@ -33,7 +34,7 @@ export default function StakingPage() {
   }
 
   return (
-    <>
+    <Suspense fallback={<div>Loading...</div>}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -90,7 +91,7 @@ export default function StakingPage() {
           <p className="text-gray-300">Compete with other stakers for top rewards</p>
         </CardWrapper>
       </motion.div>
-    </>
+    </Suspense>
   )
 }
 
