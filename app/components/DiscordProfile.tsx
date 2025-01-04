@@ -86,6 +86,11 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
       setError('')
       setProgress(0)
 
+      // Make sure we have a valid session
+      if (!session?.id) {
+          throw new Error('No active session');
+      }
+
       setStatus('Connecting wallet...')
       const address = await connectWallet()
       setProgress(30)
@@ -96,6 +101,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
       const signature = await signMessage(message)
       setProgress(50)
 
+      // Use the correct API endpoint
       const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${session?.id}/wallets`, {
         method: 'POST',
         headers: {
