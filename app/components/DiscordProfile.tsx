@@ -28,7 +28,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/discord/webhook`, {
+      const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/webhook`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
       const signature = await signMessage(message)
       setProgress(50)
 
-      const response = await fetch(`http://localhost:3001/api/discord/${session?.id}/wallets`, {
+      const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${session?.id}/wallets`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
