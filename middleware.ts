@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function middleware(_request: NextRequest) {
   const response = NextResponse.next()
 
   // Add CORS headers
@@ -15,4 +15,4 @@ export function middleware(request: NextRequest) {
 // Configure which routes should be handled by the middleware
 export const config = {
   matcher: '/api/:path*',
-} 
+}
