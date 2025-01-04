@@ -28,6 +28,13 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
     }
 
     try {
+      // Log the data being sent
+      console.log('Initializing session with:', {
+        sessionId,
+        username: decodeURIComponent(username),
+        discordId
+      });
+
       const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/webhook`, {
         method: 'POST',
         headers: {
@@ -41,13 +48,17 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         }),
       })
 
+      const data = await response.json()
+      console.log('Server response:', data)
+
       if (!response.ok) {
         throw new Error('Failed to initialize session')
       }
 
-      const data = await response.json()
-      console.log('Session initialized with Discord ID:', discordId)
-      console.log('Data from server:', data)
+      // Update session with server response
+      if (data.session) {
+        updateSession(data.session)
+      }
     } catch (error: unknown) {
       console.error('Failed to initialize session:', error)
       setError('Failed to initialize verification. Please try again.')
@@ -55,14 +66,20 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
   }
 
   useEffect(() => {
+    // Log props received
+    console.log('Props received:', { sessionId, username, discordId });
+
     // Call initializeSession here using the props
     initializeSession(sessionId, username, discordId)
 
-    // Update session state
+    // Update local session state
+    const decodedUsername = decodeURIComponent(username);
+    console.log('Setting session with username:', decodedUsername);
+
     updateSession({
       id: sessionId,
       discordId,
-      username: decodeURIComponent(username),
+      username: decodedUsername, // Store decoded username
       isDiscordConnected: true,
       wallets: [],
       createdAt: Date.now(),
@@ -166,7 +183,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              Connected as {session.username}
+              Connected as {session.username || decodeURIComponent(username)}
             </div>
           ) : (
             <div className="text-yellow-500 flex items-center">
