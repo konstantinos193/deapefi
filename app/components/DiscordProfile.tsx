@@ -96,7 +96,6 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         const signature = await signMessage(message);
         setProgress(50);
 
-        // Use sessionId from props
         const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${sessionId}/wallets`, {
             method: 'POST',
             headers: {
@@ -117,14 +116,17 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
             throw new Error(data.error || 'Failed to verify wallet ownership');
         }
 
-        // Update session with new wallet data
         updateSession(data.session);
         setProgress(100);
         setStatus('Wallet connected successfully!');
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Wallet connection error:', error);
-        setError(error.message);
+        if (error instanceof Error) {
+            setError(error.message);
+        } else {
+            setError('An unknown error occurred');
+        }
     } finally {
         setIsLoading(false);
     }
