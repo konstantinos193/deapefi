@@ -1,21 +1,19 @@
-'use client'
-import { useSession } from '../../contexts/SessionContext'
+import { Providers } from '../../components/Providers'
 import DiscordProfile from '../../components/DiscordProfile'
 
-export default function DiscordConnectPage() {
-  const { session } = useSession();
-
-  if (!session) {
-    return <div>Loading...</div>;
-  }
-
+export default function DiscordConnectPage({
+  params
+}: {
+  params: { sessionId: string; username: string; discordId: string }
+}) {
   return (
-    <div>
+    <Providers>
+      {/* Pass the sessionId, username, and discordId to DiscordProfile */}
       <DiscordProfile 
-        discordId={session.discordId}
-        sessionId={session.id}
-        username={session.username}
+        sessionId={params.sessionId} 
+        username={params.username} 
+        discordId={params.discordId} 
       />
-    </div>
-  );
+    </Providers>
+  )
 }

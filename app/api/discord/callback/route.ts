@@ -6,8 +6,6 @@ const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
-export const dynamic = 'force-dynamic'
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

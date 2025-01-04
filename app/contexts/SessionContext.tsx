@@ -29,40 +29,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session>(defaultSession)
 
   useEffect(() => {
-    const sessionId = searchParams?.get('sessionId')
-    if (!sessionId) return // Don't update if no sessionId
-
+    const sessionId = searchParams?.get('sessionId') || 'default-session'
     const username = searchParams?.get('username') || 'Anonymous'
     const discordId = searchParams?.get('discordId') || ''
     
-    // Create new session with search params
-    const newSession = {
+    setSession({
       id: sessionId,
       username: username,
       discordId: discordId,
-      isDiscordConnected: !!discordId, // Set to true if discordId exists
+      isDiscordConnected: true,
       wallets: [],
       createdAt: Date.now(),
       expiresAt: Date.now() + (24 * 60 * 60 * 1000)
-    }
-
-    setSession(newSession)
-
-    // Optional: Store in localStorage for persistence
-    try {
-      localStorage.setItem('session', JSON.stringify(newSession))
-    } catch (e) {
-      console.error('Failed to store session:', e)
-    }
+    })
   }, [searchParams])
 
   const updateSession = (newSession: Session) => {
     setSession(newSession)
-    try {
-      localStorage.setItem('session', JSON.stringify(newSession))
-    } catch (e) {
-      console.error('Failed to store updated session:', e)
-    }
   }
 
   return (
