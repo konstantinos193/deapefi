@@ -8,6 +8,12 @@ import { useSearchParams } from 'next/navigation'
 const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+interface DiscordProfileProps {
+  sessionId?: string;
+  username?: string;
+  discordId?: string;
+}
+
 const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionId, username: propUsername, discordId: propDiscordId }) => {
   const searchParams = useSearchParams()
   const { connectWallet, signMessage } = useWallet()
