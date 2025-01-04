@@ -1,16 +1,28 @@
-import DiscordProfile from '../../../components/DiscordProfile'
-import { WalletProvider } from '../../../providers/WalletProvider'
+'use client'
 
-export default function ConnectPage({
-  params
-}: {
-  params: { sessionId: string; username: string; discordId: string } // Include username and discordId here
-}) {
+import { WalletProvider } from '../../../providers/WalletProvider'
+import DiscordProfile from '../../../components/DiscordProfile'
+import { useSearchParams } from 'next/navigation'
+
+export default function ConnectPage() {
+  const searchParams = useSearchParams()
+  
+  // Get parameters from URL query string
+  const sessionId = searchParams.get('sessionId')
+  const username = searchParams.get('username')
+  const discordId = searchParams.get('discordId')
+
+  // Debug log
+  console.log('URL Parameters:', { sessionId, username, discordId })
+
   return (
     <WalletProvider>
       <div className="min-h-screen bg-gray-900 py-12">
-        {/* Pass the username and discordId along with sessionId */}
-        <DiscordProfile sessionId={params.sessionId} username={params.username} discordId={params.discordId} />
+        <DiscordProfile 
+          sessionId={sessionId || ''} 
+          username={username || ''} 
+          discordId={discordId || ''} 
+        />
       </div>
     </WalletProvider>
   )
