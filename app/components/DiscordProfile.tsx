@@ -76,14 +76,25 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
     initSession();
   }, [sessionId, username, discordId, updateSession]);
 
+  useEffect(() => {
+    console.log('Current session state:', {
+      sessionId,
+      session,
+      API_URL,
+      API_KEY: API_KEY ? 'present' : 'missing'
+    });
+  }, [sessionId, session]);
+
   const handleConnectWallet = async () => {
     if (!API_KEY) {
-        setError('API Key is missing');
+        console.error('API Key missing');
+        setError('Configuration error: API Key missing');
         return;
     }
 
-    if (!session || !sessionId) {
-        setError('No active session found. Please refresh the page.');
+    if (!sessionId) {
+        console.error('No sessionId available');
+        setError('Session ID is missing. Please try reconnecting through Discord.');
         return;
     }
 
@@ -91,6 +102,13 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         setIsLoading(true);
         setError('');
         setProgress(0);
+
+        // Log the request details
+        console.log('Attempting wallet connection:', {
+            sessionId,
+            apiUrl: API_URL,
+            hasApiKey: !!API_KEY
+        });
 
         setStatus('Connecting wallet...');
         const address = await connectWallet();
@@ -102,7 +120,10 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         const signature = await signMessage(message);
         setProgress(50);
 
-        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
+        const endpoint = `${API_URL}/api/discord/${sessionId}/wallets`;
+        console.log('Making request to:', endpoint);
+
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,9 +140,11 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         const data = await response.json();
         
         if (!response.ok) {
+            console.error('Wallet verification failed:', data);
             throw new Error(data.error || 'Failed to verify wallet ownership');
         }
 
+        console.log('Wallet verification successful:', data);
         updateSession(data.session);
         setProgress(100);
         setStatus('Wallet connected successfully!');
