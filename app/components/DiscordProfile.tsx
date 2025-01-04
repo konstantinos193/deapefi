@@ -82,6 +82,11 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         return;
     }
 
+    if (!session || !sessionId) {
+        setError('No active session found. Please refresh the page.');
+        return;
+    }
+
     try {
         setIsLoading(true);
         setError('');
@@ -97,7 +102,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         const signature = await signMessage(message);
         setProgress(50);
 
-        const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/${sessionId}/wallets`, {
+        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
