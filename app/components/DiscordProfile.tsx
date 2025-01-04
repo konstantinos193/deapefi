@@ -4,29 +4,10 @@ import { useEffect, useState } from 'react'
 import { useWallet } from '../contexts/WalletContext'
 import { useSession } from '../contexts/SessionContext'
 import { useSearchParams } from 'next/navigation'
+import type { Session, Wallet } from '../types/session'
 
 const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-interface Wallet {
-  address: string;
-  verified: boolean;
-  verifiedAt?: number;
-  nftBalance?: number;
-  stakedNFTs?: string[];
-  totalNFTs?: number;
-}
-
-interface Session {
-  id: string;
-  sessionId?: string;
-  discordId?: string;
-  username?: string;
-  isDiscordConnected?: boolean;
-  wallets?: Wallet[];
-  createdAt?: number;
-  lastActivity?: number;
-}
 
 interface DiscordProfileProps {
   sessionId?: string;
