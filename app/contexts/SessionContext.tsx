@@ -48,8 +48,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setSession(newSession)
   }
 
-  // Add proper polling with backoff
-  const useSessionPolling = (sessionId) => {
+  // Or if you plan to use it later, export it and mark it as intentionally unused
+  export const useSessionPolling = (sessionId: string) => {
     const [retryCount, setRetryCount] = useState(0);
     const maxRetries = 5;
     const baseDelay = 5000; // 5 seconds
