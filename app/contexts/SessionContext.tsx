@@ -12,7 +12,7 @@ export const useSessionPolling = (sessionId: string) => {
   useEffect(() => {
     if (!sessionId) return;
     
-    let timeoutId;
+    let timeoutId: NodeJS.Timeout | undefined;
     let mounted = true;
 
     const pollSession = async () => {
