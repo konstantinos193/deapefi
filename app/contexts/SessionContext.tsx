@@ -4,15 +4,6 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import { useSearchParams } from 'next/navigation'
 import { Session } from '../types/session'
 
-interface Wallet {
-  address: string
-  nftBalance?: number
-  stakedNFTs?: string[]
-  totalNFTs?: number  // Add totalNFTs
-  tier?: number       // Add tier
-  totalPoints?: number // Add totalPoints
-}
-
 interface SessionContextType {
   session: Session | null
   updateSession: (session: Session) => void
@@ -21,6 +12,7 @@ interface SessionContextType {
 const defaultSession: Session = {
   id: 'default-session',
   username: 'Anonymous',
+  discordId: '',
   isDiscordConnected: false,
   wallets: [],
   createdAt: Date.now(),
@@ -39,10 +31,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const sessionId = searchParams?.get('sessionId') || 'default-session'
     const username = searchParams?.get('username') || 'Anonymous'
+    const discordId = searchParams?.get('discordId') || ''
     
     setSession({
       id: sessionId,
       username: username,
+      discordId: discordId,
       isDiscordConnected: true,
       wallets: [],
       createdAt: Date.now(),
