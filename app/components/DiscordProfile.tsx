@@ -22,6 +22,24 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
+    console.log('DiscordProfile mounted with:', {
+      props: { sessionId, username, discordId },
+      currentSession: session
+    });
+  }, [sessionId, username, discordId, session]);
+
+  useEffect(() => {
+    if (session?.id && !session.sessionId) {
+      updateSession({
+        ...session,
+        sessionId: session.id,
+        username: username || session.username,
+        discordId: discordId || session.discordId
+      });
+    }
+  }, [session, sessionId, username, discordId, updateSession]);
+
+  useEffect(() => {
     const initSession = async () => {
       if (!sessionId || !username || !discordId) {
         console.error('Missing required props:', { sessionId, username, discordId });
