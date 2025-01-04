@@ -3,19 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useWallet } from '../contexts/WalletContext'
 import { useSession } from '../contexts/SessionContext'
-import { Session } from '../types/session'
 import { useSearchParams } from 'next/navigation'
 
 const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-interface DiscordProfileProps {
-  sessionId?: string;
-  username?: string;
-  discordId?: string;
-}
-
-export default function DiscordProfile() {
+const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionId, username: propUsername, discordId: propDiscordId }) => {
   const searchParams = useSearchParams()
   const { connectWallet, signMessage } = useWallet()
   const { session, updateSession } = useSession()
@@ -24,10 +17,10 @@ export default function DiscordProfile() {
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
 
-  // Get params from URL
-  const sessionId = searchParams.get('sessionId') || ''
-  const username = searchParams.get('username') || ''
-  const discordId = searchParams.get('discordId') || ''
+  // Use props if provided, otherwise use search params
+  const sessionId = propSessionId || searchParams.get('sessionId')
+  const username = propUsername || searchParams.get('username')
+  const discordId = propDiscordId || searchParams.get('discordId')
 
   useEffect(() => {
     if (!sessionId || !username || !discordId) {
@@ -286,3 +279,5 @@ export default function DiscordProfile() {
     </div>
   )
 }
+
+export default DiscordProfile;
