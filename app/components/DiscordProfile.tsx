@@ -9,12 +9,12 @@ const API_KEY = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface DiscordProfileProps {
+  discordId: string;
   sessionId: string;
   username: string;
-  discordId: string;
 }
 
-export default function DiscordProfile({ sessionId, username, discordId }: DiscordProfileProps) {
+export default function DiscordProfile({ discordId, sessionId, username }: DiscordProfileProps) {
   const { connectWallet, signMessage } = useWallet()
   const { session, updateSession } = useSession()
   const [isLoading, setIsLoading] = useState(false)
