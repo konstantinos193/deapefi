@@ -21,83 +21,59 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
 
-  const initializeSession = async (sessionId: string, username: string, discordId: string) => {
-    if (!API_KEY) {
-      setError('API Key is missing');
-      return;
-    }
-
-    try {
-      // Decode the username first
-      const decodedUsername = decodeURIComponent(username);
-      
-      console.log('Initializing session with:', {
-        sessionId,
-        username: decodedUsername,
-        discordId
-      });
-
-      const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/webhook`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY
-        },
-        body: JSON.stringify({
-          sessionId,
-          username: decodedUsername, // Use decoded username
-          discordId,
-        }),
-      });
-
-      const data = await response.json();
-      console.log('Server response:', data);
-
-      if (!response.ok) {
-        throw new Error(`Failed to initialize session: ${data.error || 'Unknown error'}`);
-      }
-
-      // Create session object with decoded username
-      const sessionData = {
-        id: sessionId,
-        discordId,
-        username: decodedUsername,
-        isDiscordConnected: true,
-        wallets: [],
-        createdAt: Date.now(),
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-      };
-
-      // Update session with our properly formatted data
-      updateSession(sessionData);
-
-    } catch (error: unknown) {
-      console.error('Failed to initialize session:', error);
-      setError('Failed to initialize verification. Please try again.');
-    }
-  };
-
   useEffect(() => {
     // Log props received
     console.log('Props received:', { sessionId, username, discordId });
 
-    // Call initializeSession here using the props
-    initializeSession(sessionId, username, discordId)
+    if (!sessionId || !username || !discordId) {
+        console.error('Missing required props:', { sessionId, username, discordId });
+        setError('Missing required fields');
+        return;
+    }
 
-    // Update local session state
-    const decodedUsername = decodeURIComponent(username);
-    console.log('Setting session with username:', decodedUsername);
+    const initSession = async () => {
+        try {
+            // Decode the username first
+            const decodedUsername = decodeURIComponent(username);
+            
+            console.log('Initializing session with:', {
+                sessionId,
+                username: decodedUsername,
+                discordId
+            });
 
-    updateSession({
-      id: sessionId,
-      discordId,
-      username: decodedUsername, // Store decoded username
-      isDiscordConnected: true,
-      wallets: [],
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-    })
-  }, [sessionId, username, discordId])
+            // Fix the API URL - make sure this matches your actual API endpoint
+            const response = await fetch(`https://discordadadadadadadadad.vercel.app/api/discord/webhook`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY || ''
+                },
+                body: JSON.stringify({
+                    sessionId,
+                    username: decodedUsername,
+                    discordId,
+                }),
+            });
+
+            const data = await response.json();
+            console.log('Server response:', data);
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to initialize session');
+            }
+
+            // Update session with server response
+            updateSession(data.session);
+
+        } catch (error) {
+            console.error('Failed to initialize session:', error);
+            setError('Failed to initialize verification. Please try again.');
+        }
+    };
+
+    initSession();
+  }, [sessionId, username, discordId]);
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
