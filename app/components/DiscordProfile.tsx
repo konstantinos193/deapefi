@@ -13,6 +13,17 @@ interface DiscordProfileProps {
   discordId: string;
 }
 
+// Add this interface to define the Session type
+interface Session {
+  id: string;
+  sessionId?: string; // Make sessionId optional since we'll add it
+  username: string;
+  discordId: string;
+  isDiscordConnected: boolean;
+  wallets: any[]; // You can define a more specific type for wallets if needed
+  createdAt: number;
+}
+
 export default function DiscordProfile({ sessionId, username, discordId }: DiscordProfileProps) {
   const { connectWallet, signMessage } = useWallet()
   const { session, updateSession } = useSession()
@@ -35,7 +46,7 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         sessionId: session.id,
         username: username || session.username,
         discordId: discordId || session.discordId
-      });
+      } as Session); // Add type assertion here
     }
   }, [session, sessionId, username, discordId, updateSession]);
 
