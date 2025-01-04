@@ -28,10 +28,12 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
     }
 
     try {
-      // Log the data being sent
+      // Decode the username first
+      const decodedUsername = decodeURIComponent(username);
+      
       console.log('Initializing session with:', {
         sessionId,
-        username: decodeURIComponent(username),
+        username: decodedUsername,
         discordId
       });
 
@@ -43,27 +45,37 @@ export default function DiscordProfile({ sessionId, username, discordId }: Disco
         },
         body: JSON.stringify({
           sessionId,
-          username: decodeURIComponent(username),
+          username: decodedUsername, // Use decoded username
           discordId,
         }),
-      })
+      });
 
-      const data = await response.json()
-      console.log('Server response:', data)
+      const data = await response.json();
+      console.log('Server response:', data);
 
       if (!response.ok) {
-        throw new Error('Failed to initialize session')
+        throw new Error(`Failed to initialize session: ${data.error || 'Unknown error'}`);
       }
 
-      // Update session with server response
-      if (data.session) {
-        updateSession(data.session)
-      }
+      // Create session object with decoded username
+      const sessionData = {
+        id: sessionId,
+        discordId,
+        username: decodedUsername,
+        isDiscordConnected: true,
+        wallets: [],
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      };
+
+      // Update session with our properly formatted data
+      updateSession(sessionData);
+
     } catch (error: unknown) {
-      console.error('Failed to initialize session:', error)
-      setError('Failed to initialize verification. Please try again.')
+      console.error('Failed to initialize session:', error);
+      setError('Failed to initialize verification. Please try again.');
     }
-  }
+  };
 
   useEffect(() => {
     // Log props received
