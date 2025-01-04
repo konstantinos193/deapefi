@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { Session } from '../types/session'
 
 interface Wallet {
   address: string
@@ -12,19 +13,9 @@ interface Wallet {
   totalPoints?: number // Add totalPoints
 }
 
-interface Session {
-  id: string
-  username?: string
-  discordId?: string  // Add this line to allow discordId
-  isDiscordConnected: boolean
-  wallets: Wallet[]
-  createdAt: number
-  expiresAt: number
-}
-
 interface SessionContextType {
   session: Session | null
-  updateSession: (newSession: Session) => void
+  updateSession: (session: Session) => void
 }
 
 const defaultSession: Session = {
