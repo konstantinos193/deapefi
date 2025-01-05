@@ -245,7 +245,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
                 </div>
               </div>
               <div className="mt-2 text-sm text-muted-foreground">
-                NFTs: {wallet.nftBalance || 0} • Staked: {wallet.stakedNFTs?.length || 0} • Total: {wallet.totalNFTs || 0}
+                NFTs: {wallet.walletBalance || 0} • Staked: {wallet.stakedTokens || 0} • Total: {wallet.totalBalance || 0}
               </div>
             </div>
           ))}
