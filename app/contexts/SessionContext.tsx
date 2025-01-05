@@ -128,8 +128,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [session.id]);
 
   const updateSession = useCallback((newSession: Session) => {
-    setSession(newSession)
-  }, [])
+    setSession(newSession);
+  }, []);
 
   return (
     <SessionContext.Provider value={{ session, updateSession }}>
