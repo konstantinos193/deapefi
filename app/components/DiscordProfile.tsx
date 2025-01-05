@@ -211,8 +211,9 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       const data = await response.json();
       console.log('API response:', data);
 
-      if (data.session && data.session.id) {
-        updateSession(data.session);
+      if (data.success && (data.hasNFTs || data.hasStakedNFTs)) {
+        const updatedSession = { ...session, hasNFTs: data.hasNFTs, hasStakedNFTs: data.hasStakedNFTs };
+        updateSession(updatedSession);
       } else {
         console.error('Invalid session data:', data);
         setError('Session data is invalid. Please try again.');
