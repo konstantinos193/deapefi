@@ -1,66 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Session } from '../types/session'
-
-export const useSessionPolling = (sessionId: string) => {
-  const [retryCount, setRetryCount] = useState(0);
-  const maxRetries = 5;
-  const baseDelay = 5000; // 5 seconds
-
-  useEffect(() => {
-    if (!sessionId) return;
-    
-    let timeoutId: NodeJS.Timeout | undefined;
-    let mounted = true;
-
-    const pollSession = async () => {
-      try {
-        const response = await fetch(`/api/session/${sessionId}`);
-        
-        if (!mounted) return;
-
-        if (response.status === 429) {
-          const delay = Math.min(baseDelay * Math.pow(2, retryCount), 30000);
-          setRetryCount(prev => prev + 1);
-          
-          if (retryCount < maxRetries) {
-            timeoutId = setTimeout(pollSession, delay);
-          }
-          return;
-        }
-
-        const data = await response.json();
-        setRetryCount(0);
-
-        if (data.status === 'complete') {
-          return;
-        }
-
-        timeoutId = setTimeout(pollSession, baseDelay);
-
-      } catch (error) {
-        console.error('Session polling error:', error);
-        const delay = Math.min(baseDelay * Math.pow(2, retryCount), 30000);
-        setRetryCount(prev => prev + 1);
-        
-        if (retryCount < maxRetries) {
-          timeoutId = setTimeout(pollSession, delay);
-        }
-      }
-    };
-
-    pollSession();
-
-    return () => {
-      mounted = false;
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [sessionId, retryCount]);
-};
 
 interface SessionContextType {
   session: Session | null
@@ -85,26 +27,94 @@ const SessionContext = createContext<SessionContextType>({
 export function SessionProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams()
   const [session, setSession] = useState<Session>(defaultSession)
+  const [isInitialized, setIsInitialized] = useState(false)
 
+  // Initialize session only once when component mounts or when URL params change
   useEffect(() => {
-    const sessionId = searchParams?.get('sessionId') || 'default-session'
-    const username = searchParams?.get('username') || 'Anonymous'
-    const discordId = searchParams?.get('discordId') || ''
-    
-    setSession({
-      id: sessionId,
-      username: username,
-      discordId: discordId,
-      isDiscordConnected: true,
-      wallets: [],
-      createdAt: Date.now(),
-      expiresAt: Date.now() + (24 * 60 * 60 * 1000)
-    })
-  }, [searchParams])
+    if (isInitialized) return;
 
-  const updateSession = (newSession: Session) => {
+    const sessionId = searchParams?.get('sessionId')
+    const username = searchParams?.get('username')
+    const discordId = searchParams?.get('discordId')
+
+    // Only initialize if we have the required params
+    if (sessionId && username && discordId) {
+      setSession({
+        id: sessionId,
+        username: decodeURIComponent(username),
+        discordId: discordId,
+        isDiscordConnected: true,
+        wallets: [],
+        createdAt: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+      })
+      setIsInitialized(true)
+    }
+  }, [searchParams, isInitialized])
+
+  // Poll for session updates if we have an active session
+  useEffect(() => {
+    if (!session.id || session.id === 'default-session') return;
+
+    let timeoutId: NodeJS.Timeout | undefined;
+    let mounted = true;
+    let retryCount = 0;
+    const maxRetries = 5;
+    const baseDelay = 5000;
+
+    const pollSession = async () => {
+      try {
+        const response = await fetch(`/api/session/${session.id}`);
+        
+        if (!mounted) return;
+
+        if (response.status === 429) {
+          const delay = Math.min(baseDelay * Math.pow(2, retryCount), 30000);
+          retryCount++;
+          
+          if (retryCount < maxRetries) {
+            timeoutId = setTimeout(pollSession, delay);
+          }
+          return;
+        }
+
+        const data = await response.json();
+        retryCount = 0;
+
+        if (data.status === 'complete') {
+          return;
+        }
+
+        if (data.session) {
+          setSession(data.session);
+        }
+
+        timeoutId = setTimeout(pollSession, baseDelay);
+
+      } catch (error) {
+        console.error('Session polling error:', error);
+        const delay = Math.min(baseDelay * Math.pow(2, retryCount), 30000);
+        retryCount++;
+        
+        if (retryCount < maxRetries) {
+          timeoutId = setTimeout(pollSession, delay);
+        }
+      }
+    };
+
+    pollSession();
+
+    return () => {
+      mounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [session.id]);
+
+  const updateSession = useCallback((newSession: Session) => {
     setSession(newSession)
-  }
+  }, [])
 
   return (
     <SessionContext.Provider value={{ session, updateSession }}>
