@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useWallet } from '../contexts/WalletContext'
 import { useSession } from '../contexts/SessionContext'
 import { useSearchParams } from 'next/navigation'
@@ -205,6 +205,11 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         setIsLoading(false);
     }
   };
+
+  const updateSession = useCallback((newSession: Session) => {
+    setSession(newSession);
+    console.log('Session updated:', newSession);
+  }, []);
 
   if (!session) {
     return (
