@@ -23,7 +23,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
-  const [nftData, setNFTData] = useState<any>(null)
 
   // Use props if provided, otherwise use search params
   const sessionId = propSessionId || searchParams.get('sessionId')
@@ -206,19 +205,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`);
-      const data = await response.json();
-      if (response.ok) {
-        setNFTData(data.details);
-      } else {
-        setError(data.error);
-      }
-    };
-    fetchData();
-  }, [sessionId]);
 
   if (!session) {
     return (
