@@ -209,12 +209,13 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         }),
       });
 
-      const data = await handleResponse(response);
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to verify wallet ownership');
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(errorData.error || 'Failed to verify wallet ownership');
       }
 
+      const data = await response.json();
       updateSession(data.session);
       setProgress(100);
       setStatus('Wallet connected successfully!');
