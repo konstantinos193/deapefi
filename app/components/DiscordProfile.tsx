@@ -23,6 +23,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
+  const [nftData, setNFTData] = useState<any>(null);
 
   // Use props if provided, otherwise use search params
   const sessionId = propSessionId || searchParams.get('sessionId')
@@ -295,6 +296,15 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         <br />
         You can close this window once you've finished adding your wallets.
       </p>
+
+      {nftData && (
+        <div>
+          <h3>NFT Details</h3>
+          <p>Balance: {nftData.walletBalance}</p>
+          <p>Staked: {nftData.stakedTokens}</p>
+          <p>Total: {nftData.totalBalance}</p>
+        </div>
+      )}
     </div>
   )
 }
