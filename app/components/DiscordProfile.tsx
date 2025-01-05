@@ -200,21 +200,18 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         const signature = await signMessage(message);
         setProgress(50);
 
-        const endpoint = `${API_URL}/api/discord/${sessionId}/wallets`;
-        console.log('Making request to:', endpoint);
-
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': API_KEY
-            },
-            body: JSON.stringify({
-                address,
-                signature,
-                message,
-                timestamp,
-            }),
+        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY
+          },
+          body: JSON.stringify({
+            address,
+            signature,
+            message,
+            timestamp
+          }),
         });
 
         const data = await handleResponse(response);
