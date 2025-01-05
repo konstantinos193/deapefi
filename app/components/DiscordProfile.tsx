@@ -206,11 +206,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     }
   };
 
-  const updateSession = useCallback((newSession: Session) => {
-    setSession(newSession);
-    console.log('Session updated:', newSession);
-  }, []);
-
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
