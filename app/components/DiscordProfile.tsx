@@ -206,6 +206,19 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     }
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`);
+      const data = await response.json();
+      if (response.ok) {
+        setNFTData(data.details);
+      } else {
+        setError(data.error);
+      }
+    };
+    fetchData();
+  }, [sessionId]);
+
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-screen">
