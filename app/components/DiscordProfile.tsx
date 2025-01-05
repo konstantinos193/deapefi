@@ -131,6 +131,19 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     }
   }, [session]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`);
+      const data = await response.json();
+      if (response.ok) {
+        setNFTData(data.details);
+      } else {
+        setError(data.error);
+      }
+    };
+    fetchData();
+  }, [sessionId]);
+
   const handleConnectWallet = async () => {
     if (!API_KEY) {
         console.error('API Key missing');
