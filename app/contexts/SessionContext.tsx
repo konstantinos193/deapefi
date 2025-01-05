@@ -24,6 +24,9 @@ const SessionContext = createContext<SessionContextType>({
   updateSession: () => {}
 })
 
+// Add API base URL
+const API_BASE_URL = 'https://apeelitclubbotapi.onrender.com';
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams()
   const [session, setSession] = useState<Session>(defaultSession)
@@ -64,7 +67,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     const pollSession = async () => {
       try {
-        const response = await fetch(`/api/session/${session.id}`);
+        // Use correct API URL
+        const response = await fetch(`${API_BASE_URL}/api/session/${session.id}`, {
+          headers: {
+            'x-api-key': process.env.NEXT_PUBLIC_FRONTEND_API_KEY || '', // Make sure this env var is set
+            'Content-Type': 'application/json'
+          }
+        });
         
         if (!mounted) return;
 
