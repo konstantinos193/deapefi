@@ -144,6 +144,20 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     fetchData();
   }, [sessionId]);
 
+  const handleResponse = async (response) => {
+    if (!response.ok) {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'An error occurred');
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    }
+    return response.json();
+  };
+
   const handleConnectWallet = async () => {
     if (!API_KEY) {
         console.error('API Key missing');
@@ -196,7 +210,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
             }),
         });
 
-        const data = await response.json();
+        const data = await handleResponse(response);
         
         if (!response.ok) {
             console.error('Wallet verification failed:', data);
