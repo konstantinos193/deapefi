@@ -164,7 +164,8 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         throw new Error(errorData.message || 'An error occurred');
       } else {
         const errorText = await response.text();
-        throw new Error(errorText);
+        console.error('Non-JSON response:', errorText);
+        throw new Error('An error occurred');
       }
     }
     return response.json();
