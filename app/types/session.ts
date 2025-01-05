@@ -20,4 +20,6 @@ export interface Session {
   wallets?: Wallet[];
   createdAt: number;
   expiresAt?: number;
+  hasNFTs?: boolean;
+  hasStakedNFTs?: boolean;
 } 
