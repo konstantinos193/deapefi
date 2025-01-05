@@ -68,10 +68,9 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         // First try to get existing session
         const getSessionResponse = await fetch(`${API_URL}/api/session/${sessionId}`, {
           headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': API_KEY || '',
-          },
-          credentials: 'include',
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json'
+          }
         });
 
         if (getSessionResponse.ok) {
