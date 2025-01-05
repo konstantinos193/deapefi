@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Session } from '../types/session'
 
@@ -31,17 +31,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams()
   const [session, setSession] = useState<Session>(defaultSession)
   const [isInitialized, setIsInitialized] = useState(false)
+  const mountedRef = useRef(false)
 
-  // Initialize session only once when component mounts or when URL params change
+  // Initialize session only once
   useEffect(() => {
-    if (isInitialized) return;
+    if (mountedRef.current || isInitialized) return
+    mountedRef.current = true
 
     const sessionId = searchParams?.get('sessionId')
     const username = searchParams?.get('username')
     const discordId = searchParams?.get('discordId')
 
-    // Only initialize if we have the required params
     if (sessionId && username && discordId) {
+      console.log('Initializing session once', { sessionId, username, discordId })
       setSession({
         id: sessionId,
         username: decodeURIComponent(username),
@@ -52,6 +54,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         expiresAt: Date.now() + (24 * 60 * 60 * 1000)
       })
       setIsInitialized(true)
+    }
+
+    return () => {
+      mountedRef.current = false
     }
   }, [searchParams, isInitialized])
 
