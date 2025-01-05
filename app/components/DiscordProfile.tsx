@@ -38,7 +38,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       console.error('Missing required URL parameters:', { sessionId, username, discordId });
       return;
     }
-
+  
     if (process.env.NODE_ENV === 'development') {
       console.log('DiscordProfile mounted with:', {
         props: { sessionId, username, discordId },
@@ -46,7 +46,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       });
     }
   }, [sessionId, username, discordId]);
-
+  
   useEffect(() => {
     if (session?.id && !session.sessionId) {
       const updatedSession: Session = {
@@ -137,6 +137,8 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!sessionId) return;
+
       try {
         const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
           headers: {
@@ -157,6 +159,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         setError('Failed to fetch NFT data');
       }
     };
+
     fetchData();
   }, [sessionId]);
 
