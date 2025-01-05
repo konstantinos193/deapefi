@@ -208,30 +208,22 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to verify wallet ownership');
-      }
-
       const data = await response.json();
-      if (data.success) {
-        if (data.hasNFTs || data.hasStakedNFTs) {
-          updateSession(data.session);
-        } else {
-          setError('No NFTs found for this wallet.');
-        }
+      console.log('API response:', data);
+
+      if (data.session && data.session.id) {
+        updateSession(data.session);
       } else {
+        console.error('Invalid session data:', data);
         setError('Session data is invalid. Please try again.');
       }
+
       setProgress(100);
       setStatus('Wallet connected successfully!');
 
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('An unknown error occurred');
-      }
+    } catch (error) {
+      console.error('Error during wallet connection:', error);
+      setError('An error occurred while connecting the wallet.');
     } finally {
       setIsLoading(false);
     }
