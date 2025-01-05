@@ -15,6 +15,8 @@ interface DiscordProfileProps {
   discordId?: string;
 }
 
+
+
 const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionId, username: propUsername, discordId: propDiscordId }) => {
   const searchParams = useSearchParams()
   const { connectWallet, signMessage } = useWallet()
@@ -157,6 +159,14 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     };
     fetchData();
   }, [sessionId]);
+
+  useEffect(() => {
+    if (session && session.id) {
+      // Safe to use session.id
+    } else {
+      console.error('Session is undefined or missing id');
+    }
+  }, [session]);
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
@@ -319,5 +329,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     </div>
   )
 }
+
+
 
 export default DiscordProfile;
