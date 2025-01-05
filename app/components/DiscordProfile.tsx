@@ -136,7 +136,12 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`);
+        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': API_KEY
+          }
+        });
         const data = await response.json();
         if (response.ok) {
           setNFTData(data.details);
