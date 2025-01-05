@@ -167,74 +167,60 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
-        console.error('API Key missing');
-        setError('Configuration error: API Key missing');
-        return;
+      setError('Configuration error: API Key missing');
+      return;
     }
 
     if (!sessionId) {
-        console.error('No sessionId available');
-        setError('Session ID is missing. Please try reconnecting through Discord.');
-        return;
+      setError('Session ID is missing. Please try reconnecting through Discord.');
+      return;
     }
 
     try {
-        setIsLoading(true);
-        setError('');
-        setProgress(0);
+      setIsLoading(true);
+      setError('');
+      setProgress(0);
 
-        // Log the request details
-        console.log('Attempting wallet connection:', {
-            sessionId,
-            apiUrl: API_URL,
-            hasApiKey: !!API_KEY
-        });
+      const address = await connectWallet();
+      setProgress(30);
 
-        setStatus('Connecting wallet...');
-        const address = await connectWallet();
-        setProgress(30);
+      const timestamp = Date.now();
+      const message = `Verify wallet ownership\nWallet: ${address}\nTimestamp: ${timestamp}`;
+      const signature = await signMessage(message);
+      setProgress(50);
 
-        setStatus('Signing verification message...');
-        const timestamp = Date.now();
-        const message = `Verify wallet ownership\nWallet: ${address}\nTimestamp: ${timestamp}`;
-        const signature = await signMessage(message);
-        setProgress(50);
+      const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        },
+        body: JSON.stringify({
+          address,
+          signature,
+          message,
+          timestamp
+        }),
+      });
 
-        const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': API_KEY
-          },
-          body: JSON.stringify({
-            address,
-            signature,
-            message,
-            timestamp
-          }),
-        });
+      const data = await handleResponse(response);
 
-        const data = await handleResponse(response);
-        
-        if (!response.ok) {
-            console.error('Wallet verification failed:', data);
-            throw new Error(data.error || 'Failed to verify wallet ownership');
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to verify wallet ownership');
+      }
 
-        console.log('Wallet verification successful:', data);
-        updateSession(data.session);
-        setProgress(100);
-        setStatus('Wallet connected successfully!');
+      updateSession(data.session);
+      setProgress(100);
+      setStatus('Wallet connected successfully!');
 
     } catch (error: unknown) {
-        console.error('Wallet connection error:', error);
-        if (error instanceof Error) {
-            setError(error.message);
-        } else {
-            setError('An unknown error occurred');
-        }
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
