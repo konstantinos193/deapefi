@@ -216,7 +216,11 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       }
 
       const data = await response.json();
-      updateSession(data.session);
+      if (data.session && data.session.id) {
+        updateSession(data.session);
+      } else {
+        console.error('Invalid session data:', data);
+      }
       setProgress(100);
       setStatus('Wallet connected successfully!');
 
