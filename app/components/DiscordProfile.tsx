@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { useWallet } from '../contexts/WalletContext'
 import { useSession } from '../contexts/SessionContext'
 import { useSearchParams } from 'next/navigation'
