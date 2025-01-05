@@ -70,7 +70,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       try {
         console.log('Initializing session with:', { sessionId, username, discordId });
 
-        // First try to get existing session
         const getSessionResponse = await fetch(`${API_URL}/api/session/${sessionId}`, {
           headers: {
             'Authorization': `Bearer ${API_KEY}`,
@@ -85,7 +84,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
           return;
         }
 
-        // If session doesn't exist, create a new one
         const createSessionResponse = await fetch(`${API_URL}/api/discord/webhook`, {
           method: 'POST',
           headers: {
@@ -165,9 +163,10 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
   useEffect(() => {
     if (session && session.id) {
-      // Safe to use session.id
+      console.log('Session is valid:', session);
     } else {
       console.error('Session is undefined or missing id');
+      setError('Session is not properly initialized.');
     }
   }, [session]);
 
