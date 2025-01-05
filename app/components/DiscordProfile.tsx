@@ -32,15 +32,18 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
   useEffect(() => {
     if (!sessionId || !username || !discordId) {
-      setError('Missing URL parameters. Please try reconnecting through Discord.')
-      console.error('Missing required URL parameters:', { sessionId, username, discordId })
-      return
+      setError('Missing URL parameters. Please try reconnecting through Discord.');
+      console.error('Missing required URL parameters:', { sessionId, username, discordId });
+      return;
     }
-    console.log('DiscordProfile mounted with:', {
-      props: { sessionId, username, discordId },
-      currentSession: session
-    });
-  }, [sessionId, username, discordId, session]);
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('DiscordProfile mounted with:', {
+        props: { sessionId, username, discordId },
+        currentSession: session
+      });
+    }
+  }, [sessionId, username, discordId]);
 
   useEffect(() => {
     if (session?.id && !session.sessionId) {
