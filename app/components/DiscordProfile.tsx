@@ -75,6 +75,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
         if (getSessionResponse.ok) {
           const existingSession = await getSessionResponse.json();
+          console.log('Existing session data:', existingSession);
           updateSession(existingSession);
           return;
         }
@@ -98,6 +99,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
         }
 
         const data = await createSessionResponse.json();
+        console.log('New session data:', data);
         updateSession(data.session);
 
       } catch (error) {
@@ -117,6 +119,10 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
       API_KEY: API_KEY ? 'present' : 'missing'
     });
   }, [sessionId, session]);
+
+  useEffect(() => {
+    console.log('Updated session state:', session);
+  }, [session]);
 
   const handleConnectWallet = async () => {
     if (!API_KEY) {
