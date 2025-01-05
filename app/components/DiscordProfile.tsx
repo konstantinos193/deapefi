@@ -137,7 +137,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!sessionId) return;
+      if (!sessionId || !session?.wallets?.length) return; // Ensure a wallet is connected
 
       try {
         const response = await fetch(`${API_URL}/api/discord/${sessionId}/wallets`, {
@@ -161,7 +161,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     };
 
     fetchData();
-  }, [sessionId]);
+  }, [sessionId, session?.wallets]);
 
   useEffect(() => {
     if (session && session.id) {
