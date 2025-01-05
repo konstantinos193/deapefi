@@ -142,7 +142,13 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
             'x-api-key': API_KEY || '',
           },
         });
-        const data = await handleResponse(response);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to fetch NFT data');
+        }
+
+        const data = await response.json();
         setNFTData(data.details);
       } catch (error) {
         console.error('Error fetching NFT data:', error);
@@ -210,21 +216,6 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleResponse = async (response: Response) => {
-    if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'An error occurred');
-      } else {
-        const errorText = await response.text();
-        console.error('Non-JSON response:', errorText);
-        throw new Error('An error occurred');
-      }
-    }
-    return response.json();
   };
 
   if (!session) {
