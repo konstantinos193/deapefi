@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback, useRef } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Session } from '../types/session'
 
@@ -128,7 +128,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [session.id]);
 
   return (
-    <SessionContext.Provider value={{ session, updateSession }}>
+    <SessionContext.Provider value={{ session, updateSession: setSession }}>
       {children}
     </SessionContext.Provider>
   )
