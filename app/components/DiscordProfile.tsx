@@ -211,15 +211,18 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
         throw new Error(errorData.error || 'Failed to verify wallet ownership');
       }
 
       const data = await response.json();
-      if (data.session && data.session.id) {
-        updateSession(data.session);
+      if (data.success) {
+        if (data.hasNFTs || data.hasStakedNFTs) {
+          updateSession(data.session);
+        } else {
+          setError('No NFTs found for this wallet.');
+        }
       } else {
-        console.error('Invalid session data:', data);
+        setError('Session data is invalid. Please try again.');
       }
       setProgress(100);
       setStatus('Wallet connected successfully!');
