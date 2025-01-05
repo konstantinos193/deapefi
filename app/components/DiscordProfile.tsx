@@ -23,6 +23,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
   const [error, setError] = useState('')
   const [status, setStatus] = useState('')
   const [progress, setProgress] = useState(0)
+  const [nftData, setNFTData] = useState<any>(null)
 
   // Use props if provided, otherwise use search params
   const sessionId = propSessionId || searchParams.get('sessionId')
