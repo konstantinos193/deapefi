@@ -129,6 +129,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const updateSession = useCallback((newSession: Session) => {
     setSession(newSession);
+    console.log('Session updated:', newSession);
   }, []);
 
   return (

@@ -124,6 +124,12 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     console.log('Updated session state:', session);
   }, [session]);
 
+  useEffect(() => {
+    if (session?.wallets) {
+      console.log('Wallets in session:', session.wallets);
+    }
+  }, [session]);
+
   const handleConnectWallet = async () => {
     if (!API_KEY) {
         console.error('API Key missing');
