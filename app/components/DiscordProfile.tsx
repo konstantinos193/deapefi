@@ -144,7 +144,7 @@ const DiscordProfile: React.FC<DiscordProfileProps> = ({ sessionId: propSessionI
     fetchData();
   }, [sessionId]);
 
-  const handleResponse = async (response) => {
+  const handleResponse = async (response: Response) => {
     if (!response.ok) {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
