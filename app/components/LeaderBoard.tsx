@@ -1,104 +1,44 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
-import { STAKING_CONTRACT_ADDRESS, NFT_CONTRACT_ADDRESS } from '../utils/constants'
-import { NFT_STAKING_ABI, NFT_COLLECTION_ABI } from '../utils/contractInterface'
 import { Trophy, Medal, Award } from 'lucide-react'
-
-// Optional: If you want to use the ErrorDetails interface for structured error handling
-interface ErrorDetails {
-  message: string;
-  data?: unknown;
-  code?: string | number;
-}
 
 interface LeaderboardEntry {
   address: string;
   points: number;
 }
 
-interface WindowWithEthereum {
-  ethereum: {
-    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-  }
-}
-
-declare global {
-  interface Window extends WindowWithEthereum {}
-}
-
 export default function LeaderBoard() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [currentAddress, setCurrentAddress] = useState<string>('')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const fetchLeaderboard = async () => {
-    try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const signer = provider.getSigner()
-      const userAddress = await signer.getAddress()
-      setCurrentAddress(userAddress.toLowerCase())
-
-      const stakingContract = new ethers.Contract(STAKING_CONTRACT_ADDRESS, NFT_STAKING_ABI, provider)
-      const nftContract = new ethers.Contract(NFT_CONTRACT_ADDRESS, NFT_COLLECTION_ABI, provider)
-
-      // Get total supply of NFTs
-      const totalSupply = await nftContract.totalSupply()
-      console.log('Total NFTs:', totalSupply.toString())
-
-      // Get all NFT owners
-      const ownerPromises = []
-      for (let i = 1; i <= totalSupply.toNumber(); i++) {
-        ownerPromises.push(
-          nftContract.ownerOf(i)
-            .then((owner: string) => owner.toLowerCase())
-            .catch(() => null)
-        )
-      }
-
-      const owners = await Promise.all(ownerPromises)
-      const uniqueOwners = [...new Set(owners.filter(owner => owner !== null))]
-      console.log('Unique owners:', uniqueOwners)
-
-      // Get points for each owner
-      const pointsPromises = uniqueOwners.map(async (address) => {
-        try {
-          const points = await stakingContract.getPoints(address)
-          return {
-            address,
-            points: points.toNumber()
-          }
-        } catch (error) {
-          console.log(`Error getting points for ${address}:`, error)
-          return null
-        }
-      })
-
-      const allPoints = await Promise.all(pointsPromises)
-
-      // Filter out null entries and sort by points
-      const validEntries = allPoints
-        .filter((entry): entry is LeaderboardEntry => entry !== null && entry.points > 0)
-        .sort((a, b) => b.points - a.points)
-
-      console.log('Leaderboard entries:', validEntries)
-      setLeaderboard(validEntries)
-      setIsLoading(false)
-    } catch (error) {
-      const typedError = error as ErrorDetails; // Use the ErrorDetails interface for better error typing
-      console.error('Error fetching leaderboard:', typedError.message);
-    }
-  }
-
   useEffect(() => {
-    fetchLeaderboard()
-    // Update every 30 seconds
-    const interval = setInterval(fetchLeaderboard, 30000)
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard`, {
+          headers: {
+            'x-api-key': process.env.NEXT_PUBLIC_FRONTEND_API_KEY // Use the API key from the .env file
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch leaderboard');
+        }
+        const data = await response.json();
+        setLeaderboard(data.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearInterval(interval)
-  }, [])
+    fetchLeaderboard();
+  }, []);
+
+  const filteredLeaderboard = leaderboard.filter(entry =>
+    entry.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -126,10 +66,6 @@ export default function LeaderBoard() {
     }
   }
 
-  const filteredLeaderboard = leaderboard.filter(entry =>
-    entry.address.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[500px]">
@@ -150,7 +86,7 @@ export default function LeaderBoard() {
         />
       </div>
 
-      <div className="bg-[#1a1b1f] rounded-lg overflow-hidden">
+      <div className="bg-[#1a1b1f] rounded-lg overflow-y-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-700 bg-opacity-40">
@@ -160,33 +96,23 @@ export default function LeaderBoard() {
             </tr>
           </thead>
           <tbody>
-            {filteredLeaderboard.map((entry, index) => (
-              <tr 
-                key={entry.address}
-                className={`border-b border-gray-700 hover:bg-gray-800 
-                  ${entry.address.toLowerCase() === currentAddress ? 'bg-blue-900 bg-opacity-20' : ''}
-                  ${getRankStyle(index)}`}
-              >
-                <td className="py-4 px-4">
-                  <div className="flex items-center">
-                    {getRankIcon(index)}
-                    <span className={index < 3 ? 'ml-2' : ''}>
-                      {index + 1}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-4 px-4 font-mono">
-                  {entry.address.toLowerCase() === currentAddress ? (
-                    <span className="text-blue-400">You</span>
-                  ) : (
-                    `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`
-                  )}
-                </td>
-                <td className="py-4 px-4 text-right font-bold">
-                  {entry.points.toLocaleString()}
-                </td>
-              </tr>
-            ))}
+            {filteredLeaderboard.map((entry) => {
+              const originalIndex = leaderboard.findIndex(e => e.address === entry.address);
+              return (
+                <tr key={entry.address} className={`border-b border-gray-700 hover:bg-gray-800 ${getRankStyle(originalIndex)}`}>
+                  <td className="py-4 px-4">
+                    <div className="flex items-center">
+                      {getRankIcon(originalIndex)}
+                      <span className={originalIndex < 3 ? 'ml-2' : ''}>
+                        {originalIndex + 1}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-4 font-mono">{entry.address}</td>
+                  <td className="py-4 px-4 text-right font-bold">{entry.points.toLocaleString()}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

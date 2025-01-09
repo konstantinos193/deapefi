@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'DeApe.fi',
   description: 'Revolutionizing NFT finance on the Ape blockchain.',
   icons: {
-    icon: 'https://i.imgur.com/2dGT2zz.png'
+    icon: 'https://i.imgur.com/5QhVrb8.png'
   }
 }
 

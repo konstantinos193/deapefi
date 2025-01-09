@@ -8,6 +8,7 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    domains: ['i.imgur.com'],
   },
   webpack: (config) => {
     if (!config.resolve) {
