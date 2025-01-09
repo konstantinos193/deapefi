@@ -16,14 +16,21 @@ export default function LeaderBoard() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        const apiKey = process.env.NEXT_PUBLIC_FRONTEND_API_KEY;
+        if (!apiKey) {
+          throw new Error('API key is not defined');
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/leaderboard`, {
           headers: {
-            'x-api-key': process.env.NEXT_PUBLIC_FRONTEND_API_KEY // Use the API key from the .env file
+            'x-api-key': apiKey
           }
         });
+
         if (!response.ok) {
           throw new Error('Failed to fetch leaderboard');
         }
+
         const data = await response.json();
         setLeaderboard(data.data);
         setIsLoading(false);
