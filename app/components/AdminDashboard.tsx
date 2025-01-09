@@ -10,7 +10,7 @@ const mockMetrics = {
 };
 
 export default function AdminDashboard() {
-  const [metrics, setMetrics] = useState(mockMetrics);
+  const [metrics] = useState(mockMetrics);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -45,11 +45,9 @@ export default function AdminDashboard() {
 
       const data = await response.json();
 
-      // Extract the lastUpdated date
       const lastUpdated = data.lastUpdated;
       const formattedDate = new Date(lastUpdated).toISOString().split('T')[0];
 
-      // Create a JSON file and download it
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
