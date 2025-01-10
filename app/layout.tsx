@@ -19,7 +19,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-      <head>
   <meta property="og:title" content="DeApe.fi" />
   <meta property="og:description" content="Borrow APE using your NFT as collateral, and keep your NFT in your wallet. Lend APE to earn more APE, and receive the NFT if the loan isn’t repaid." />
   <meta property="og:image" content="https://i.imgur.com/XPagcVe.jpeg" />
