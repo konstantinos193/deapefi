@@ -7,8 +7,46 @@ const nextConfig = {
         hostname: 'play-lh.googleusercontent.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**.ipfs.w3s.link',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.ipfs.dweb.link',
+        port: '',
+        pathname: '/**',
+      }
     ],
-    domains: ['i.imgur.com'],
+    domains: [
+      'i.imgur.com', 
+      'img-cdn.magiceden.dev', 
+      's2.coinmarketcap.com', 
+      'placehold.co', 
+      'img.reservoir.tools', 
+      'gateway.pinata.cloud', 
+      'api.dicebear.com', 
+      'example.com', 
+      'ipfs.io', 
+      'cloudflare-ipfs.com', 
+      'dweb.link', 
+      'cf-ipfs.com', 
+      'w3s.link',
+      'bafybeihzg2ijidwcjsll7qgqkniu3k5azzdy2hda26dbf5e2lginzvlvzy.ipfs.w3s.link',
+      // Adding new IPFS gateways
+      '4everland.io',
+      'nftstorage.link',
+      'hardbin.com',
+      'infura-ipfs.io',
+      'ipfs.eth.aragon.network',
+      'jorropo.net',
+      'ipfs.best-practice.se',
+      'ipfs.fleek.co',
+      'ipfs.drink.cafe',
+      'ipfs.litnet.work'
+    ],
   },
   webpack: (config) => {
     if (!config.resolve) {
@@ -34,8 +72,8 @@ const nextConfig = {
       path: require.resolve('path-browserify'),
     }
 
-    return config
-  },
+  return config
+},
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig
